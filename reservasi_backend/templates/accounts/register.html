@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h2>Daftar Akun</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+
+<p>Sudah punya akun? <a href="{% url 'login' %}">Login di sini</a></p>
+{% endblock %}
