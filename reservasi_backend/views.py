@@ -25,3 +25,5 @@ def register(request):
 @login_required
 def dashboard(request):
     return render(request, 'dashboard/index.html')
+
+# baruuu
