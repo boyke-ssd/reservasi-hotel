@@ -28,6 +28,21 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'booking'
+LOGOUT_REDIRECT_URL = 'home'
+
+# Kirim email ke terminal dulu (untuk testing)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = '334d6f68502759'  # Ganti dengan milikmu dari Mailtrap
+EMAIL_HOST_PASSWORD = '2bf073cd57889a'  # Lihat bagian yang disensor "****63c0", klik "Reset Credentials" jika lupa
+EMAIL_PORT = 2525
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'reservasi_backend',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -124,54 +140,25 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = {
-    # Branding
-    "site_title": "Admin Reservasi Hotel",
-    "site_header": "Reservasi Hotel",
+    "site_title": "HotelControl Admin",
+    "site_header": "HotelControl",
     "site_brand": "HotelControl",
-    "welcome_sign": "Selamat datang di Sistem Reservasi Hotel",
-    "copyright": "© 2025 Hotel",
-    "site_logo_classes": "img-circle",  # Jika pakai logo, tampilkan bulat
+    "welcome_sign": "Selamat Datang di HotelControl",
+    "copyright": "HotelControl Team",
 
-    # Navigasi & Layout
-    "show_sidebar": True,
-    "navigation_expanded": True,
-    "hide_apps": [],
-    "hide_models": [],
-    "order_with_respect_to": ["reservasi", "auth"],
+    # Sembunyikan menu yang tidak perlu
+    "hide_apps": ["dashboard"],  # sembunyikan app dashboard dari sidebar
+    "hide_models": ["dashboard.QuickReservation"],  # atau model spesifik
 
-    # Tema Warna (gunakan dark mode elegan)
-    "theme": "lux",  # Pilihan lain: 'flatly', 'morph', 'cyborg', 'superhero'
-    "dark_mode_theme": "cyborg",
-
-    # Tampilan Login
-    "login_logo": None,
-    "login_logo_dark": None,
-    "login_logo_classes": "img-fluid",
-    "show_ui_builder": False,
-
-    # Ikon menu
+    # Ikon menu admin
     "icons": {
-        "reservasi.TipeKamar": "fas fa-bed",
-        "reservasi.Reservasi": "fas fa-calendar-check",
-        "auth.User": "fas fa-user",
-        "auth.Group": "fas fa-users-cog",
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
     },
 
-    # Tweak untuk tampil lebih modern
-    "topmenu_links": [
-        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"model": "reservasi.Reservasi"},
-        {"model": "reservasi.TipeKamar"},
-    ],
-
-    "custom_links": {
-        "reservasi": [
-            {
-                "name": "Tambah Reservasi Cepat",
-                "url": "/admin/reservasi/reservasi/add/",
-                "icon": "fas fa-plus",
-                "permissions": ["reservasi.add_reservasi"],
-            }
-        ]
-    },
+    # UI tweaks opsional
+    "login_logo": None,
+    "show_ui_builder": False,
+    "navigation_expanded": True,
 }
