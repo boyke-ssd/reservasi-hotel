@@ -89,9 +89,9 @@ def tipe_kamar_list(request):
 def fasilitas_list(request):
     return render(request, 'fasilitas/fasilitas_list.html')
 
-# View untuk halaman ulasan
-def ulasan_list(request):
-    return render(request, 'ulasan/ulasan_list.html')
+# View untuk reservasi
+def reservasi(request):
+    return render(request, 'reservasi/reservasi.html')
 
 # View untuk halaman tim
 def team_view(request):

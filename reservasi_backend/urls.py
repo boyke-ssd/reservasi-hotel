@@ -10,9 +10,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
 
     #navbar 
-    path('tipe-kamar/', views.tipe_kamar_list, name='tipe_kamar_list'),
+    path('kamar/', views.tipe_kamar_list, name='kamar'),
     path('fasilitas/', views.fasilitas_list, name='fasilitas_list'),
-    path('ulasan/', views.ulasan_list, name='ulasan_list'),
+    path('reservasi/', views.reservasi, name='reservasi'),
     path('tim/', views.team_view, name='tim'),
 
     path('booking/', views.booking, name='booking'),

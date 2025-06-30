@@ -3,9 +3,9 @@
 
     <ul class="flex space-x-4 items-center text-gray-700 font-medium">
         <li><a href="{% url 'home' %}" class="hover:text-blue-600 transition">Beranda</a></li>
-        <li><a href="{% url 'tipe_kamar_list' %}" class="hover:text-blue-600 transition">Tipe Kamar</a></li>
+        <li><a href="{% url 'kamar' %}" class="hover:text-blue-600 transition">Kamar</a></li>
         <li><a href="{% url 'fasilitas_list' %}" class="hover:text-blue-600 transition">Fasilitas</a></li>
-        <li><a href="{% url 'ulasan_list' %}" class="hover:text-blue-600 transition">Ulasan</a></li>
+        <li><a href="{% url 'reservasi' %}" class="hover:text-blue-600 transition">Reservasi</a></li>
         <li><a href="{% url 'tim' %}" class="hover:text-blue-600 transition">Tim</a></li>
 
         {% if user.is_authenticated %}
