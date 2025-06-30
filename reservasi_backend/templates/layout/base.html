@@ -12,9 +12,20 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
+    <!--Navbar-->
+    {% if '/login/' not in request.path and '/register/' not in request.path %}
+        {% include 'layout/navbar.html' %}
+    {% endif %}
+
+    <!--Konten Website-->
     {% block content %}{% endblock %}
 
-    {# blok ini untuk JavaScript tambahan #}
+    <!--footer-->
+    {% if '/login/' not in request.path and '/register/' not in request.path %}
+        {% include 'layout/footer.html' %}
+    {% endif %}
+
+    <!--untuk File JavaScript -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

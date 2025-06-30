@@ -41,6 +41,10 @@ EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+#headears keamanan
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # Application definition
@@ -55,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reservasi_backend',
     'widget_tweaks',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +83,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -139,6 +146,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#konfigurasi Jazzmin
 JAZZMIN_SETTINGS = {
     "site_title": "HotelControl Admin",
     "site_header": "HotelControl",

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layout/base.html' %}
 {% load widget_tweaks %}
 
 {% block title %}Daftar Akun{% endblock %}
@@ -39,6 +39,7 @@
                 {% endif %}
             </div>
             {% endfor %}
+
 
             <button type="submit" class="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-lg transition duration-300 transform hover:scale-105">
                 Daftar Sekarang

@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 
 # Beranda publik
 def halaman_awal(request):
-    return render(request, "home/beranda.html")
+    return render(request, "beranda.html")
 
 
 # Register

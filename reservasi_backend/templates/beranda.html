@@ -1,6 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'layout/base.html' %}
 
 {% block title %}Halaman Beranda Coyy{% endblock %}
+
+
 
 {% block content %}
 <h1>Selamat datang di Hotel Kami</h1>
@@ -8,3 +10,4 @@
 <p><a href="{% url 'booking' %}">Booking Sekarang</a> (login dibutuhkan)</p>
 
 {% endblock %}
+
