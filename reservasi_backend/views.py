@@ -12,9 +12,6 @@ from django.template.loader import render_to_string
 # Beranda publik
 def halaman_awal(request):
     return render(request, "beranda.html")
-def halaman_coba(request):
-    return render(request, "coba.html")
-
 
 # Register
 def register(request):
@@ -83,3 +80,19 @@ def booking(request):
 @user_passes_test(lambda u: u.is_authenticated and u.is_staff)
 def admin_dashboard(request):
     return render(request, 'dashboard/index.html')
+
+# View untuk halaman daftar tipe kamar
+def tipe_kamar_list(request):
+    return render(request, 'tipe_kamar/tipe_kamar_list.html')
+
+# View untuk halaman fasilitas
+def fasilitas_list(request):
+    return render(request, 'fasilitas/fasilitas_list.html')
+
+# View untuk halaman ulasan
+def ulasan_list(request):
+    return render(request, 'ulasan/ulasan_list.html')
+
+# View untuk halaman tim
+def team_view(request):
+    return render(request, 'tim/tim.html')
