@@ -1,24 +1,59 @@
-<nav class="bg-white shadow-md py-4 px-8 flex justify-between items-center">
-    <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-600">Hotel Djangoo</a>
+{% load static %}
+<nav class="bg-[#0A400C]/50 backdrop-blur-md shadow-lg px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 z-50 border border-[#3D8361]/20 rounded-xl">
+    <!-- Kiri: Logo + Nama -->
+    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-2xl font-bold text-white hover:text-[#EEF2E6] transition transform hover:scale-105">
+        <img src="{% static 'images/logo.png' %}" alt="Logo Hotel Djangoo" class="h-10 w-10 rounded-full object-cover" onerror="this.src='{% static 'images/default-logo.png' %}'">
+        <span>Hotel Djangoo</span>
+    </a>
 
-    <ul class="flex space-x-4 items-center text-gray-700 font-medium">
-        <li><a href="{% url 'home' %}" class="hover:text-blue-600 transition">Beranda</a></li>
-        <li><a href="{% url 'kamar' %}" class="hover:text-blue-600 transition">Kamar</a></li>
-        <li><a href="{% url 'fasilitas_list' %}" class="hover:text-blue-600 transition">Fasilitas</a></li>
-        <li><a href="{% url 'reservasi' %}" class="hover:text-blue-600 transition">Reservasi</a></li>
-        <li><a href="{% url 'tim' %}" class="hover:text-blue-600 transition">Tim</a></li>
-
-        {% if user.is_authenticated %}
+    <!-- Tengah: Menu utama -->
+    <div x-data="{ open: false }" class="flex items-center">
+        <!-- Menu Desktop -->
+        <ul class="hidden md:flex space-x-8 text-white font-medium">
             <li>
-                <span class="text-gray-800">👤 {{ user.first_name|default:user.username }}</span>
+                <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                    Beranda
+                </a>
             </li>
             <li>
-                <a href="{% url 'logout' %}" class="bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 transition">Logout</a>
+                <a href="{% url 'hotel_list' %}" class="{% if request.resolver_match.url_name == 'hotel_list' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                    Hotel
+                </a>
             </li>
+            <li>
+                <a href="{% url 'reservation' %}" class="{% if request.resolver_match.url_name == 'reservation' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                    Reservasi
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'reservation_history' %}" class="{% if request.resolver_match.url_name == 'reservation_history' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                    Riwayat Reservasi
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                    Tentang Kami
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Kanan: Profil & Login -->
+    <div class="flex items-center space-x-4">
+        {% if request.session.app_auth %}
+            <div class="flex items-center space-x-2">
+                <span class="text-white text-sm">
+                    <span class="italic">Selamat datang di Hotel Djangoo,</span>
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+                <a href="{% url 'logout' %}" class="bg-[#1C6758]/50 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-[#3D8361]/70 transition transform hover:scale-105 border border-[#3D8361]/20">
+                    Logout
+                </a>
+            </div>
         {% else %}
-            <li>
-                <a href="{% url 'login' %}" class="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 transition">Login</a>
-            </li>
+            <a href="{% url 'login' %}" class="bg-[#1C6758]/50 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-[#3D8361]/70 transition transform hover:scale-105 border border-[#3D8361]/20">
+                Login / Register
+            </a>
         {% endif %}
-    </ul>
+    </div>
 </nav>

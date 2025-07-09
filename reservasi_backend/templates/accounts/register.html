@@ -1,20 +1,20 @@
 {% extends 'layout/base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Daftar Akun{% endblock %}
+{% block title %}Daftar - Hotel Djangoo{% endblock %}
 
 {% block content %}
 {# ================================================================= #}
 {# WRAPPER UNTUK MEMBUAT KONTEN DI TENGAH DAN MEMBERI BACKGROUND     #}
 {# ================================================================= #}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A400C] to-[#1C6758] px-4 py-8">
 
-    {# Ini adalah kartu form Anda yang sudah ada sebelumnya #}
-    <div class="bg-white bg-opacity-20 backdrop-blur-lg shadow-xl rounded-2xl px-8 py-8 w-full max-w-md">
+    {# Kartu form #}
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg shadow-xl rounded-2xl px-6 py-6 w-full max-w-md">
         <h2 class="text-3xl font-bold mb-2 text-center text-white">Buat Akun Baru</h2>
         <p class="text-center text-gray-200 mb-8">Bergabunglah bersama kami sekarang!</p>
 
-        <form method="post" class="space-y-5">
+        <form method="post" class="space-y-5" id="register-form">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -31,8 +31,25 @@
                     {{ field.label }}
                 </label>
                 
-                {# Menggunakan widget_tweaks untuk styling input yang konsisten #}
-                {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition" placeholder=field.label %}
+                {% if field.label == "Username" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan nama pengguna" %}
+                {% elif field.label == "Email" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan alamat email" %}
+                {% elif field.label == "First name" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan nama depan" %}
+                {% elif field.label == "Last name" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan nama belakang" %}
+                {% elif field.label == "Phone" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan nomor telepon" %}
+                {% elif field.label == "Gender" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition appearance-none" %}
+                {% elif field.label == "Password" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan kata sandi" %}
+                {% elif field.label == "Password confirmation" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Konfirmasi kata sandi" %}
+                {% else %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder=field.label %}
+                {% endif %}
                 
                 {% if field.errors %}
                     <p class="text-red-400 text-xs italic mt-2">{{ field.errors.0 }}</p>
@@ -40,9 +57,15 @@
             </div>
             {% endfor %}
 
-
-            <button type="submit" class="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-lg transition duration-300 transform hover:scale-105">
-                Daftar Sekarang
+            <button type="submit" class="w-full py-3 mt-4 bg-[#1C6758] hover:bg-[#3D8361] text-white rounded-lg font-bold text-lg transition duration-300 transform hover:scale-105" id="register-button">
+                <span id="button-text">Daftar Sekarang</span>
+                <span id="button-loading" class="hidden">
+                    <svg class="animate-spin h-5 w-5 mr-2 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z"></path>
+                    </svg>
+                    Memproses...
+                </span>
             </button>
         </form>
 
@@ -51,6 +74,26 @@
             <a href="{% url 'login' %}" class="text-white hover:underline font-bold">Login di sini</a>
         </p>
     </div>
-
 </div>
+
+<script>
+document.getElementById('register-form').addEventListener('submit', function() {
+    const button = document.getElementById('register-button');
+    const buttonText = document.getElementById('button-text');
+    const buttonLoading = document.getElementById('button-loading');
+    button.disabled = true;
+    buttonText.classList.add('hidden');
+    buttonLoading.classList.remove('hidden');
+});
+</script>
+
+<style>
+/* Styling untuk dropdown gender */
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231C6758'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.5em;
+}
+</style>
 {% endblock %}

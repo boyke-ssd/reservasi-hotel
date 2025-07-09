@@ -1,0 +1,19 @@
+.glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Untuk Safari */
+}
+body {
+    background-color: #E6F0FA;
+    font-family: Arial, sans-serif;
+}
+.search-background {
+    background: url('{% static "images/background.jpg" %}') no-repeat center center/cover;
+}
+.search-overlay {
+    background-color: rgba(28, 103, 88, 0.7);
+}
+@supports not (backdrop-filter: blur(10px)) {
+    .backdrop-blur-md {
+        background-color: #1C6758;
+    }
+}
