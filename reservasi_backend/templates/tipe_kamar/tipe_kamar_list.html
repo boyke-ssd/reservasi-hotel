@@ -1,11 +1,72 @@
 {% extends 'layout/base.html' %}
+{% load static %}
+{% load humanize %}
 
-{% block title %}Halaman Beranda Coyy{% endblock %}
-
-
+{% block title %}Daftar Kamar{% endblock %}
 
 {% block content %}
-<h1>Haloo, ini halaman tipe kamar</h1>
+<div class="bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Hotel Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Pop! Hotel Kuta Beach</h1>
+            <p class="text-gray-600 text-sm mt-1">Jl. Kubu Bene, Legian, Kec. Kuta, Badung, Bali 80361 · <a href="#" class="text-blue-600 underline hover:text-blue-800">Lihat Peta</a></p>
+        </div>
 
+        <!-- Room Cards -->
+        {% for room in kamar_list %}
+        <div class="mb-10 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-white">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+                <!-- Gambar Utama -->
+                {% if room.room_type.image %}
+                <img src="{{ room.room_type.image.url }}" alt="Gambar Kamar" class="object-cover h-full w-full md:col-span-1">
+                {% else %}
+                <div class="bg-gray-200 h-full flex items-center justify-center text-gray-500 md:col-span-1">
+                    Tidak ada gambar
+                </div>
+                {% endif %}
+
+                <!-- Deskripsi -->
+                <div class="p-6 col-span-2 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">{{ room.room_type.name|upper }}</h2>
+                        <p class="text-sm text-gray-700 mb-1">Kamar No. {{ room.number }}</p>
+                        <p class="text-sm text-gray-700 mb-1">Ukuran: {{ room.room_type.size|default:"-" }}</p>
+                        <p class="text-sm text-gray-700 mb-3">Deskripsi: {{ room.room_type.description|truncatewords:25 }}</p>
+
+                        <div class="text-sm text-gray-600 mb-2">
+                            <span class="font-semibold text-gray-700">Fasilitas:</span>
+                            <ul class="list-disc list-inside mt-1">
+                                {% for fasilitas in room.facilities.all %}
+                                    <li>{{ fasilitas.name }}</li>
+                                {% empty %}
+                                    <li><em>Tidak ada fasilitas</em></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4">
+                        <div>
+                            <p class="text-sm text-gray-500 line-through">Rp {{ room.room_type.base_price|add:"50000"|intcomma }}</p>
+                            <p class="text-xl font-bold text-indigo-600">Rp {{ room.room_type.base_price|intcomma }}</p>
+                        </div>
+
+                        <div class="flex gap-3 items-center">
+                            {% if room.is_available %}
+                                <span class="text-green-700 text-sm font-semibold">Tersedia</span>
+                            {% else %}
+                                <span class="text-red-500 text-sm font-semibold">Tidak Tersedia</span>
+                            {% endif %}
+                            <a href="{% url 'booking' %}?room_id={{ room.pk }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                                Pilih Kamar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
-

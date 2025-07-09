@@ -1,0 +1,59 @@
+{% extends 'layout/base.html' %}
+{% load humanize %}             {# untuk angka dengan thousands separator #}
+{% block title %}Daftar Hotel{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-bold mb-6">Daftar Hotel</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {% for hotel in daftar_hotel %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+      <a href="{% url 'hotel_detail' hotel.pk %}" class="block">
+        {% if hotel.image_cover %}
+          <img src="{{ hotel.image_cover.url }}" alt="{{ hotel.name }}" class="w-full h-48 object-cover">
+        {% else %}
+          <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+            Tidak Ada Gambar
+          </div>
+        {% endif %}
+    
+        <div class="p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-gray-800">
+              {% if hotel.avg_rating %}
+                {{ hotel.avg_rating|stringformat:",.1f" }} / 10
+              {% else %}
+                - / 10
+              {% endif %}
+            </span>
+            <span class="text-xs text-gray-500">
+              ({{ hotel.review_count }} ulasan)
+            </span>
+          </div>
+    
+          <h2 class="text-lg font-semibold text-gray-800">{{ hotel.name }}</h2>
+          <p class="text-gray-600 text-sm line-clamp-2">{{ hotel.address }}</p>
+          <p class="text-gray-500 text-xs">{{ hotel.city }}, {{ hotel.province }}</p>
+    
+          <p class="mt-2 text-gray-800 text-sm">
+            {% if hotel.min_price %}
+              Dari <span class="font-bold text-blue-600">Rp {{ hotel.min_price|intcomma }}</span>
+            {% else %}
+              Harga belum tersedia
+            {% endif %}
+
+            <a href="{% url 'hotel_detail' hotel.pk %}"
+            class="block text-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
+            Lihat Detail
+            </a>
+          </p>
+        </div>
+      </a>
+    </div>
+        {% empty %}
+    <p class="text-center text-gray-500">Belum ada hotel tersedia.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

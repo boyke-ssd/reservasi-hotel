@@ -1,0 +1,74 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ kamar.room_type.name }}{% endblock %}
+
+{% block content %}
+<div class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">{{ kamar.room_type.name|upper }}</h1>
+
+        <div class="grid md:grid-cols-2 gap-10">
+            <!-- Gambar -->
+            <div>
+                {% if kamar.room_type.image %}
+                    <img src="{{ kamar.room_type.image.url }}" alt="Gambar Kamar" class="rounded-lg shadow-lg w-full object-cover">
+                {% else %}
+                    <div class="bg-gray-200 h-64 w-full flex items-center justify-center text-gray-500">
+                        Tidak ada gambar
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Deskripsi -->
+            <div>
+                <p class="text-gray-700 text-lg mb-6">
+                    {{ kamar.room_type.description }}
+                </p>
+
+                <!-- Detail Info -->
+                <div class="space-y-2 text-sm text-gray-600 border-t border-b py-4">
+                    <div class="flex items-center gap-3">
+                        <span>💠</span> Ukuran Kamar: 24 sqm / 258 sqft
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span>👨‍👩‍👧</span> Maksimum: 3 dewasa & 1 anak
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span>🛏️</span> Tempat Tidur: Queen atau Twin
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span>💰</span> Harga: Rp {{ kamar.room_type.base_price|intcomma }} / malam
+                    </div>
+                </div>
+
+                <!-- Booking Button -->
+                <div class="mt-6">
+                    {% if kamar.is_available %}
+                        <a href="{% url 'booking' %}?room_id={{ kamar.id }}" class="inline-block px-6 py-3 text-white bg-indigo-700 hover:bg-indigo-800 font-semibold rounded-md shadow">
+                            BOOK NOW
+                        </a>
+                    {% else %}
+                        <span class="inline-block px-4 py-2 bg-red-100 text-red-700 font-medium rounded">
+                            Tidak Tersedia
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Fasilitas -->
+        <div class="mt-12">
+            <h2 class="text-xl font-semibold mb-4">What You Get</h2>
+            <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 text-gray-700 text-sm list-disc list-inside">
+                {% for fasilitas in kamar.facilities.all %}
+                    <li>{{ fasilitas.name }}</li>
+                {% empty %}
+                    <li><em>Tidak ada fasilitas khusus</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

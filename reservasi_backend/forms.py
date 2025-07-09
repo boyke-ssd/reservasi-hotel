@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile
+from .models import UserProfile, Review
 from captcha.fields import CaptchaField
 
 class CustomUserCreationForm(UserCreationForm):
@@ -33,3 +33,8 @@ class CustomUserCreationForm(UserCreationForm):
         if any(char in name for char in "<>{}[]/\\|&$"):
             raise forms.ValidationError("Nama tidak boleh mengandung karakter aneh.")
         return name
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']

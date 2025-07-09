@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     UserProfile, RoomType, Facility, Room,
-    Reservation, Payment, Review
+    Reservation, Payment, Review, Hotel, HotelImage
 )
 
 # ====================
@@ -98,3 +98,22 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ['reservation__user__username', 'reservation__room__number']
     list_filter = ['rating', 'created_at']
     readonly_fields = ['created_at']
+
+from .models import Hotel, HotelImage
+
+# ====================
+# HotelImage Inline
+# ====================
+class HotelImageInline(admin.TabularInline):
+    model = HotelImage
+    extra = 1
+
+# ====================
+# Hotel Admin
+# ====================
+@admin.register(Hotel)
+class HotelAdmin(admin.ModelAdmin):
+    list_display = ['name', 'city', 'address']
+    search_fields = ['name', 'city']
+    list_filter = ['city']
+    inlines = [HotelImageInline]

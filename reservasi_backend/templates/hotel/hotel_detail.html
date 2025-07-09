@@ -1,0 +1,56 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Nama Hotel & Lokasi -->
+  <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">{{ hotel.name }}</h1>
+      <p class="text-gray-500 mt-1">{{ hotel.location }}</p>
+    </div>
+    <a href="#tipe-kamar" class="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+      Pilih Kamar
+    </a>
+  </div>
+
+  <!-- Galeri -->
+  {% if gambar %}
+    <!-- Galeri dari HotelImage -->
+  {% else %}
+    <!-- Fallback: tampilkan image_cover -->
+    {% if hotel.image_cover %}
+      <img src="{{ hotel.image_cover.url }}" class="rounded-lg w-full h-[400px] object-cover mb-6" alt="{{ hotel.name }}">
+    {% endif %}
+  {% endif %}
+
+  <!-- Fasilitas -->
+  <h2 class="text-2xl font-semibold mb-4">Fasilitas</h2>
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    {% for fasilitas in fasilitas %}
+    <div class="flex items-center gap-2 text-gray-700">
+      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+      <span>{{ fasilitas.name }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Tipe Kamar -->
+  <h2 id="tipe-kamar" class="text-2xl font-semibold mb-4">Tipe Kamar</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for tipe in tipe_kamar %}
+    <div class="p-5 border rounded-lg bg-white shadow-sm hover:shadow-md transition">
+      <h3 class="text-xl font-semibold text-blue-700">{{ tipe.name }}</h3>
+      <p class="text-gray-700 mt-1">
+        Harga per malam:
+        <span class="text-green-600 font-bold">Rp{{ tipe.base_price|floatformat:0 }}</span>
+      </p>
+      <ul class="list-disc mt-3 pl-5 text-sm text-gray-600">
+        {% for fasilitas in tipe.room_set.first.facilities.all %}
+          <li>{{ fasilitas.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

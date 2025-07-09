@@ -41,14 +41,45 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+class Hotel(models.Model):
+    facilities = models.ManyToManyField('Facility', related_name='hotels', blank=True, verbose_name=_("Fasilitas"))
+    name = models.CharField(max_length=200, verbose_name=_("Nama Hotel"))
+    description = models.TextField(blank=True, verbose_name=_("Deskripsi"))
+    address = models.TextField(verbose_name=_("Alamat"))
+    city = models.CharField(max_length=100, verbose_name=_("Kota"))
+    province = models.CharField(max_length=100, verbose_name=_("Provinsi"))
+    rating = models.PositiveSmallIntegerField(default=0, verbose_name=_("Rating (1-5)"))
+    image_cover = models.ImageField(upload_to='hotels/', blank=True, null=True, verbose_name=_("Gambar Utama"))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Hotel")
+        verbose_name_plural = _("Hotel")
+
+    def __str__(self):
+        return self.name
+
+class HotelImage(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="images", verbose_name=_("Hotel"))
+    image = models.ImageField(upload_to='hotel_images/', verbose_name=_("Gambar"))
+    caption = models.CharField(max_length=200, blank=True, verbose_name=_("Keterangan"))
+
+    class Meta:
+        verbose_name = _("Gambar Hotel")
+        verbose_name_plural = _("Gambar Hotel")
+
+    def __str__(self):
+        return f"Gambar {self.hotel.name}"
 
 # ======================
 # Tipe Kamar
 # ======================
 class RoomType(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, verbose_name=_("Hotel"))
     name = models.CharField(max_length=100, verbose_name=_("Nama Tipe Kamar"))
     description = models.TextField(blank=True, verbose_name=_("Deskripsi"))
     base_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Harga per Malam"))
+    image = models.ImageField(upload_to='room_types/', null=True, blank=True)
 
     class Meta:
         verbose_name = _("Tipe Kamar")
@@ -79,8 +110,10 @@ class Facility(models.Model):
 class Room(models.Model):
     number = models.CharField(max_length=10, unique=True, verbose_name=_("Nomor Kamar"))
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, verbose_name=_("Tipe Kamar"))
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, verbose_name=_("Hotel"), null=True)
     facilities = models.ManyToManyField(Facility, blank=True, verbose_name=_("Fasilitas"))
     is_available = models.BooleanField(default=True, verbose_name=_("Tersedia"))
+
 
     class Meta:
         verbose_name = _("Kamar")

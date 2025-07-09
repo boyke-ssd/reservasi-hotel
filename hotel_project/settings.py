@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'reservasi_backend',
     'widget_tweaks',
     'captcha',
@@ -170,3 +171,10 @@ JAZZMIN_SETTINGS = {
     "show_ui_builder": False,
     "navigation_expanded": True,
 }
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
