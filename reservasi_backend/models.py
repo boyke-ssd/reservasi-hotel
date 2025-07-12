@@ -280,18 +280,25 @@ class Reservation(models.Model):
         return f"{self.user.username} - {self.room.number} ({self.check_in} - {self.check_out})"
 
     def clean(self):
+        # Validasi tanggal wajib diisi
+        if not self.check_in or not self.check_out:
+            raise ValidationError(_("Tanggal check-in dan check-out harus diisi."))
+
         # Validasi check_out > check_in
         if self.check_out <= self.check_in:
             raise ValidationError(_("Tanggal check-out harus lebih besar dari tanggal check-in."))
+
         # Validasi ketersediaan kamar
-        overlapping_reservations = Reservation.objects.filter(
-            room=self.room,
-            check_in__lt=self.check_out,
-            check_out__gt=self.check_in,
-            status__in=['PENDING', 'PAID', 'CHECKED_IN']
-        ).exclude(pk=self.pk)
-        if overlapping_reservations.exists():
-            raise ValidationError(_("Kamar ini sudah dipesan untuk tanggal yang diminta."))
+        if self.room:  # Pastikan kamar dipilih
+            overlapping_reservations = Reservation.objects.filter(
+                room=self.room,
+                check_in__lt=self.check_out,
+                check_out__gt=self.check_in,
+                status__in=['PENDING', 'PAID', 'CHECKED_IN']
+            ).exclude(pk=self.pk)
+
+            if overlapping_reservations.exists():
+                raise ValidationError(_("Kamar ini sudah dipesan untuk tanggal yang diminta."))
 
     def duration(self):
         return (self.check_out - self.check_in).days

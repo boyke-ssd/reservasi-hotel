@@ -1,9 +1,58 @@
 {% extends 'layout/base.html' %}
-
-{% block title %}Halaman Beranda Coyy{% endblock %}
+{% load static %}
 
 {% block content %}
-<h1>Haloo, ini halaman tipe kamar</h1>
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold mb-6">Riwayat Reservasi</h2>
 
+  {% if reservations %}
+    <div class="grid gap-4">
+      {% for r in reservations %}
+      <div class="bg-white rounded-xl shadow p-4 flex gap-4 items-center">
+        <!-- Gambar -->
+        <img src="{{ r.room.hotel.gallery.first.image.url }}" alt="Hotel Image" class="w-32 h-24 object-cover rounded-lg">
+
+        <!-- Info utama -->
+        <div class="flex-1">
+          <h3 class="text-lg font-bold">{{ r.room.hotel.name }}</h3>
+          <p class="text-sm text-gray-600">{{ r.room.hotel.location }}</p>
+          <p class="text-sm text-gray-600">
+            Check-in: <span class="font-medium">{{ r.check_in }}</span> |
+            Check-out: <span class="font-medium">{{ r.check_out }}</span>
+          </p>
+          <p class="text-sm text-gray-600">Total: <span class="text-blue-600 font-semibold">Rp{{ r.total_price|floatformat:0 }}</span></p>
+        </div>
+
+        <!-- Status + Aksi -->
+        <div class="text-right space-y-2">
+          <!-- Status -->
+          {% if r.status == 'PENDING' %}
+            <span class="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">Menunggu Pembayaran</span>
+            <div class="flex gap-2 justify-end">
+              <a href="{% url 'payment' r.id %}" class="text-sm text-white bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">Bayar</a>
+              <form method="post" action="{% url 'cancel_reservation' r.id %}">
+                {% csrf_token %}
+                <button type="submit" class="text-sm text-red-600 hover:underline">Batalkan</button>
+              </form>
+            </div>
+          {% elif r.status == 'PAID' %}
+            <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">Dibayar</span>
+          {% elif r.status == 'CHECKED_IN' %}
+            <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Check-in</span>
+          {% elif r.status == 'CHECKED_OUT' %}
+            <span class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Check-out</span>
+            <a href="{% url 'review' r.id %}" class="text-sm text-white bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700 block mt-2">Beri Ulasan</a>
+          {% elif r.status == 'CANCELLED' %}
+            <span class="text-sm bg-red-100 text-red-600 px-3 py-1 rounded-full">Dibatalkan</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center text-gray-500 mt-12">
+      <p class="text-lg">Belum ada reservasi.</p>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
-
