@@ -1,37 +1,36 @@
 {% load static %}
-<nav class="bg-[#0A400C]/50 backdrop-blur-md shadow-lg px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 z-50 border border-[#3D8361]/20 rounded-xl">
+<nav class="gradient-bg shadow-lg px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 z-50">
     <!-- Kiri: Logo + Nama -->
-    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-2xl font-bold text-white hover:text-[#EEF2E6] transition transform hover:scale-105">
-        <img src="{% static 'images/logo.png' %}" alt="Logo Hotel Djangoo" class="h-10 w-10 rounded-full object-cover" onerror="this.src='{% static 'images/default-logo.png' %}'">
-        <span>Hotel Djangoo</span>
+    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-2xl font-bold text-white brand-hover">
+        <span>Nginep<span class="text-mint-light">Yuk!</span></span>
     </a>
 
     <!-- Tengah: Menu utama -->
-    <div x-data="{ open: false }" class="flex items-center">
+    <div class="flex items-center">
         <!-- Menu Desktop -->
         <ul class="hidden md:flex space-x-8 text-white font-medium">
             <li>
-                <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-mint-light border-b-2 border-mint-light{% else %}text-white{% endif %} link-hover">
                     Beranda
                 </a>
             </li>
             <li>
-                <a href="{% url 'hotel_list' %}" class="{% if request.resolver_match.url_name == 'hotel_list' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                <a href="{% url 'hotel_list' %}" class="{% if request.resolver_match.url_name == 'hotel_list' %}text-mint-light border-b-2 border-mint-light{% else %}text-white{% endif %} link-hover">
                     Hotel
                 </a>
             </li>
             <li>
-                <a href="{% url 'reservation' %}" class="{% if request.resolver_match.url_name == 'reservation' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                <a href="{% url 'reservation' %}" class="{% if request.resolver_match.url_name == 'reservation' %}text-mint-light border-b-2 border-mint-light{% else %}text-white{% endif %} link-hover">
                     Reservasi
                 </a>
             </li>
             <li>
-                <a href="{% url 'reservation_history' %}" class="{% if request.resolver_match.url_name == 'reservation_history' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                <a href="{% url 'reservation_history' %}" class="{% if request.resolver_match.url_name == 'reservation_history' %}text-mint-light border-b-2 border-mint-light{% else %}text-white{% endif %} link-hover">
                     Riwayat Reservasi
                 </a>
             </li>
             <li>
-                <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-[#EEF2E6] border-b-2 border-[#EEF2E6]{% else %}text-white{% endif %} hover:text-[#EEF2E6] hover:border-b-2 hover:border-[#EEF2E6] transition-all duration-300">
+                <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-mint-light border-b-2 border-mint-light{% else %}text-white{% endif %} link-hover">
                     Tentang Kami
                 </a>
             </li>
@@ -41,17 +40,98 @@
     <!-- Kanan: Profil & Login -->
     <div class="flex items-center space-x-4">
         {% if request.session.app_auth %}
-            <div class="flex items-center space-x-2">
-                <span class="text-white text-sm">
-                    <span class="italic">Selamat datang di Hotel Djangoo,</span>
-                    {{ request.user.first_name|default:request.user.username }}
-                </span>
-                <a href="{% url 'logout' %}" class="bg-[#1C6758]/50 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-[#3D8361]/70 transition transform hover:scale-105 border border-[#3D8361]/20">
-                    Logout
-                </a>
+            <!-- Profile Modal dengan Alpine.js -->
+            <div x-data="{ 
+                profileOpen: false,
+                closeModal() {
+                    this.profileOpen = false;
+                },
+                openModal() {
+                    this.profileOpen = true;
+                }
+            }" 
+            x-on:keydown.escape.window="closeModal()" 
+            class="relative">
+                
+                <!-- Profile Trigger Button -->
+                <button @click="openModal()" class="profile-trigger">
+                    <div class="profile-trigger-avatar">
+                        {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                    </div>
+                    <span class="profile-trigger-text">
+                        {{ request.user.first_name|default:request.user.username|truncatechars:10 }}
+                    </span>
+                    <svg class="profile-trigger-arrow" 
+                         :class="{ 'rotate': profileOpen }"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Modal Overlay -->
+                <div x-show="profileOpen" 
+                     x-transition:enter="fade-enter" 
+                     x-transition:enter-start="fade-enter" 
+                     x-transition:enter-end="fade-enter-active"
+                     x-transition:leave="fade-leave" 
+                     x-transition:leave-start="fade-leave" 
+                     x-transition:leave-end="fade-leave-active"
+                     @click="closeModal()" 
+                     class="profile-modal-overlay">
+                </div>
+
+                <!-- Profile Modal -->
+                <div x-show="profileOpen" 
+                     x-transition:enter="slide-enter" 
+                     x-transition:enter-start="slide-enter" 
+                     x-transition:enter-end="slide-enter-active"
+                     x-transition:leave="slide-leave" 
+                     x-transition:leave-start="slide-leave" 
+                     x-transition:leave-end="slide-leave-active"
+                     @click.stop 
+                     class="profile-modal backdrop-blur-2xl">
+                    
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                        </div>
+                        <div class="profile-info">
+                            <h3>{{ request.user.first_name|default:request.user.username }}</h3>
+                            <p>{{ request.user.email|default:"Hotel Guest" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-description">
+                        Backup data browsing Anda dan lihat favorit, kata sandi, riwayat, dan lainnya di semua perangkat.
+                    </div>
+
+                    <div class="profile-actions">
+                        <a href="{% url 'reservation_history' %}" class="profile-menu-item" @click="closeModal()">
+                            <span>📋</span>
+                            <span>Riwayat Reservasi</span>
+                        </a>
+                        
+                        <a href="{% url 'reservation' %}" class="profile-menu-item" @click="closeModal()">
+                            <span>🏨</span>
+                            <span>Buat Reservasi</span>
+                        </a>
+                        
+                        <a href="#" class="profile-menu-item" @click="closeModal()">
+                            <span>⚙️</span>
+                            <span>Pengaturan</span>
+                        </a>
+                        
+                        <div class="profile-divider"></div>
+                        
+                        <a href="{% url 'logout' %}" class="profile-btn-logout">
+                            <span>🚪</span>
+                            <span style="margin-left: 4px;">Keluar dari akun</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         {% else %}
-            <a href="{% url 'login' %}" class="bg-[#1C6758]/50 backdrop-blur-md text-white px-4 py-2 rounded-lg hover:bg-[#3D8361]/70 transition transform hover:scale-105 border border-[#3D8361]/20">
+            <a href="{% url 'login' %}" class="bg-teal-dark/50 text-white px-4 py-2 rounded-lg hover:bg-teal-medium transition-colors border border-white/20">
                 Login / Register
             </a>
         {% endif %}
