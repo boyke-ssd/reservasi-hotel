@@ -1,3 +1,13 @@
-env
-django-jazzmin
-db.sqlite3
+# virtual environment
+env/
+
+# database lokal
+*.sqlite3
+
+# cache python
+__pycache__/
+*.py[cod]
+
+# file editor dan OS
+.DS_Store
+*.swp
