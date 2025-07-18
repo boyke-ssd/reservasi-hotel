@@ -1,3 +1,4 @@
+
 env
 django-jazzmindb.sqlite3
 db.sqlite3
@@ -7,3 +8,17 @@ django-jazzmin
 db.sqlite3
 __pycache__/
 *.pyc
+
+# virtual environment
+env/
+
+# database lokal
+*.sqlite3
+
+# cache python
+__pycache__/
+*.py[cod]
+
+# file editor dan OS
+.DS_Store
+*.swp
