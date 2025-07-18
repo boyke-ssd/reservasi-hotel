@@ -1,9 +1,110 @@
 {% extends 'layout/base.html' %}
-
-{% block title %}Halaman Beranda Coyy{% endblock %}
+{% load static %}
+{% load humanize %}
 
 {% block content %}
-<h1>Haloo, ini halaman tipe kamar</h1>
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="relative z-10 flex justify-center items-center">
+    <div class="container mx-auto px-4 max-w-6xl">
+      <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-4">
+        <div class="flex flex-col lg:flex-row gap-2 items-stretch rounded-lg p-2">
+          <!-- Destination -->
+           <div class="flex-1 min-w-[200px] relative">
+            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]" onclick="toggleDestinationDropdown()">
+              <div class="flex flex-col justify-center h-full">
+                <span class="text-xs font-semibold text-[#3D8361] uppercase tracking-wide">Destinasi</span>
+                <span class="text-sm font-medium text-[#1C6758]" id="destinationValue">Pilih Hotel</span>
+              </div>
+            </div>
+            <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50">
+              <div class="border-t max-h-48 overflow-y-auto">
+                {% for hotel in all_hotels %}
+                <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium">{{ hotel.region }}</span>
+                  </div>
+                  <span class="text-xs text-gray-500">{{ hotel.name }}</span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <!-- Check-in -->
+          <div class="flex-1 min-w-[140px] relative">
+            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]">
+              <div class="flex flex-col justify-center h-full">
+                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-in</span>
+                <input type="date" name="check_in" id="checkinValue" class="text-sm font-medium text-gray-800">
+              </div>
+            </div>
+          </div>
+          <!-- Check-out -->
+          <div class="flex-1 min-w-[140px] relative">
+            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]">
+              <div class="flex flex-col justify-center h-full">
+                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-out</span>
+                <input type="date" name="check_out" id="checkoutValue" class="text-sm font-medium text-gray-800">
+              </div>
+            </div>
+          </div>
+          <!-- Search Button -->
+          <button type="submit" class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 min-w-[120px] justify-center h-14">
+            <span>Search</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
+    <h2 class="text-2xl font-bold mb-6">Daftar Hotel</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for h in hotel_data %}
+        <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
+          <div class="bg-white shadow rounded-2xl h-full hover:-translate-y-1 transform transition">
+            <div class="relative">
+              {% if h.image %}
+                <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-40 object-cover">
+              {% else %}
+                <img src="{% static 'images/no-image.png' %}" class="w-full h-40 object-cover" alt="No Image">
+              {% endif %}
+              <span class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-md font-semibold">
+                  {{ h.obj.average_rating|floatformat:1 }}/10
+              </span>
+            </div>
+            <div class="p-4">
+              <h3 class="font-semibold text-base truncate">{{ h.obj.name }}</h3>
+              <p class="text-sm text-gray-500 truncate">{{ h.obj.location }}</p>
+              <p class="text-xs text-gray-400 mb-2">{{ h.jumlah_ulasan }} ulasan</p>
+              <p class="text-right text-blue-600 font-bold text-sm">
+                  {% if h.harga_termurah %}
+                      Dari Rp{{ h.harga_termurah|intcomma }}
+                  {% else %}
+                      Tidak tersedia
+                  {% endif %}
+              </p>
+            </div>
+          </div>
+        </a>        
+        {% endfor %}
+    </div>
+</div>
+<script>
+  function selectDestination(hotelName, hotelId) {
+    // Langsung redirect ke halaman detail
+    window.location.href = `/hotels/${hotelId}/`;
+  }
+
+  function toggleDestinationDropdown() {
+    const dropdown = document.getElementById('destinationDropdown');
+    dropdown.classList.toggle('hidden');
+  }
+
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('destinationDropdown');
+    const trigger = document.querySelector('[onclick="toggleDestinationDropdown()"]');
+    if (dropdown && !dropdown.contains(e.target) && !trigger.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+</script>
 {% endblock %}
-
