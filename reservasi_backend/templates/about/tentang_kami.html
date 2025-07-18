@@ -3,7 +3,85 @@
 {% block title %}Halaman Beranda Coyy{% endblock %}
 
 {% block content %}
-<h1>Haloo, ini halaman tipe kamar</h1>
+ <header class="gradient-bg text-white py-10 shadow-lg">
+    <div class="container mx-auto px-6">
+      <h1 class="text-4xl font-bold text-center">Tentang Kami</h1>
+      <p class="text-center text-lg mt-2 opacity-90">Mengenal aplikasi dan tim pengembang</p>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-6 py-12 space-y-16">
+
+    <!-- Apa yang Dilakukan -->
+    <section x-data="{ show: false }" x-init="setTimeout(() => show = true, 100)" x-show="show" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active">
+      <h2 class="text-2xl font-bold text-teal-dark mb-4">Apa yang Dilakukan Perusahaan?</h2>
+      <p class="text-gray-700">Kami mengembangkan sistem pakar berbasis web untuk membantu calon mahasiswa menemukan jurusan terbaik berdasarkan minat dan kemampuan mereka.</p>
+    </section>
+
+    <!-- Sejarah Perusahaan -->
+    <section x-data="{ show: false }" x-init="setTimeout(() => show = true, 300)" x-show="show" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active">
+      <h2 class="text-2xl font-bold text-teal-dark mb-4">Sejarah Perusahaan</h2>
+      <p class="text-gray-700">Dimulai dari tugas UAS, proyek ini tumbuh menjadi aplikasi rekomendasi yang memanfaatkan metode sistem pakar dan teknologi AI sederhana.</p>
+    </section>
+
+    <!-- Portofolio -->
+    <section x-data="{ show: false }" x-init="setTimeout(() => show = true, 500)" x-show="show" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active">
+      <h2 class="text-2xl font-bold text-teal-dark mb-4">Portofolio</h2>
+      <ul class="list-disc pl-6 text-gray-700 space-y-2">
+        <li>Sistem Pakar Rekomendasi Jurusan (2025)</li>
+        <li>Aplikasi Prediksi Kesesuaian Jurusan (2024)</li>
+        <li>Dashboard Manajemen Siswa (2023)</li>
+      </ul>
+    </section>
+
+    <!-- Tim & Kontak -->
+    <section x-data="{ show: false }" x-init="setTimeout(() => show = true, 700)" x-show="show" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active">
+      <h2 class="text-2xl font-bold text-teal-dark mb-6">Tim & Kontak</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Anggota 1 -->
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+          <div class="flex items-center space-x-4 mb-2">
+            <div class="w-14 h-14 bg-teal-dark text-white flex items-center justify-center text-xl font-bold rounded-full">A1</div>
+            <div>
+              <h3 class="text-lg font-semibold">Andi Prasetyo</h3>
+              <p class="text-sm text-gray-500">Backend Developer</p>
+            </div>
+          </div>
+          <div class="flex space-x-4 mt-2 text-gray-500 text-sm">
+            <a href="https://wa.me/6281234567890" target="_blank">WA</a>
+            <a href="https://instagram.com/andi_prasetyo" target="_blank">Instagram</a>
+            <a href="https://facebook.com/andi.prasetyo" target="_blank">Facebook</a>
+          </div>
+        </div>
+
+        <!-- Anggota 2 -->
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+          <div class="flex items-center space-x-4 mb-2">
+            <div class="w-14 h-14 bg-teal-dark text-white flex items-center justify-center text-xl font-bold rounded-full">B2</div>
+            <div>
+              <h3 class="text-lg font-semibold">Bunga Rahmawati</h3>
+              <p class="text-sm text-gray-500">Frontend Designer</p>
+            </div>
+          </div>
+          <div class="flex space-x-4 mt-2 text-gray-500 text-sm">
+            <a href="https://wa.me/6289876543210" target="_blank">WA</a>
+            <a href="https://instagram.com/bunga_ui" target="_blank">Instagram</a>
+            <a href="https://facebook.com/bunga.rahmawati" target="_blank">Facebook</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prinsip dan Nilai -->
+    <section x-data="{ show: false }" x-init="setTimeout(() => show = true, 900)" x-show="show" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active">
+      <h2 class="text-2xl font-bold text-teal-dark mb-4">Prinsip dan Nilai</h2>
+      <ul class="list-disc pl-6 text-gray-700 space-y-2">
+        <li>Transparansi dan akurasi dalam rekomendasi</li>
+        <li>Pengembangan berkelanjutan</li>
+        <li>Berorientasi pada pengguna dan kemudahan akses</li>
+      </ul>
+    </section>
+  </main>
 
 {% endblock %}
 

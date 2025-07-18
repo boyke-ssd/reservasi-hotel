@@ -7,7 +7,7 @@
 {# ================================================================= #}
 {# WRAPPER UNTUK MEMBUAT KONTEN DI TENGAH DAN MEMBERI BACKGROUND     #}
 {# ================================================================= #}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A400C] to-[#1C6758] px-4 py-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br gradient-bg px-4 py-8">
 
     {# Kartu form #}
     <div class="bg-white bg-opacity-20 backdrop-blur-lg shadow-xl rounded-2xl px-6 py-6 w-full max-w-md">
@@ -32,9 +32,9 @@
                 </label>
                 
                 {% if field.label == "Username" %}
-                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan nama pengguna" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-mint-light transition" placeholder="Masukkan nama pengguna" %}
                 {% else %}
-                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D8361] transition" placeholder="Masukkan kata sandi" %}
+                    {% render_field field class="w-full px-4 py-2.5 border border-transparent bg-white bg-opacity-40 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-mint-light transition" placeholder="Masukkan kata sandi" %}
                 {% endif %}
                 
                 {% if field.errors %}
@@ -43,7 +43,7 @@
             </div>
             {% endfor %}
 
-            <button type="submit" class="w-full py-3 mt-4 bg-[#1C6758] hover:bg-[#3D8361] text-white rounded-lg font-bold text-lg transition duration-300 transform hover:scale-105" id="login-button">
+            <button type="submit" class="w-full py-3 mt-4 bg-teal-medium hover:bg-mint-light text-white rounded-lg font-bold text-lg transition duration-300 transform hover:scale-105" id="login-button">
                 <span id="button-text">Login</span>
                 <span id="button-loading" class="hidden">
                     <svg class="animate-spin h-5 w-5 mr-2 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
