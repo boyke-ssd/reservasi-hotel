@@ -32,14 +32,14 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'booking'
 LOGOUT_REDIRECT_URL = 'home'
 
-# Kirim email ke terminal dulu (untuk testing)
+# Kirim email Notifikasi
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '334d6f68502759'  # Ganti dengan milikmu dari Mailtrap
-EMAIL_HOST_PASSWORD = '2bf073cd57889a'  # Lihat bagian yang disensor "****63c0", klik "Reset Credentials" jika lupa
-EMAIL_PORT = 2525
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = 'teramedia552@gmail.com'  # Ganti dengan email Gmail kamu
+EMAIL_HOST_PASSWORD = 'unom jebk afyc ghow'      # Ganti dengan App Password (bukan password biasa)
+DEFAULT_FROM_EMAIL = 'teramedia552@gmail.com'  # Email pengirim
 
 #headears keamanan
 SECURE_BROWSER_XSS_FILTER = True

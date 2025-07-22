@@ -55,9 +55,6 @@ class UserProfile(models.Model):
 # ======================
 # Hotel
 # ======================
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-
 class Hotel(models.Model):
     name = models.CharField(
         max_length=100,
@@ -84,6 +81,11 @@ class Hotel(models.Model):
     average_rating = models.FloatField(
         default=0.0,
         verbose_name=_("Rating Rata-rata")
+    )
+    star_rating = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        verbose_name=_("Rating Bintang (0-5)")
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

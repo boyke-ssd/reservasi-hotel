@@ -20,11 +20,11 @@
 
     <div class="relative z-10 flex justify-center items-center">
         <div class="container mx-auto px-4 max-w-6xl">
-            <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-mint-light rounded-lg shadow-xl p-4 search-bar glass">
+            <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-4 search-bar glass">
                 <div class="flex flex-col lg:flex-row gap-2 items-stretch rounded-lg p-2">
                     <!-- Destination -->
                     <div class="flex-1 min-w-[200px] relative">
-                        <div class="bg-mint-light backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium" onclick="toggleDestinationDropdown()">
+                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium" onclick="toggleDestinationDropdown()">
                             <div class="flex flex-col justify-center h-full">
                                 <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Destinasi</span>
                                 <span class="text-sm font-medium text-navy-dark" id="destinationValue">Pilih Hotel</span>
@@ -46,7 +46,7 @@
 
                     <!-- Check-in -->
                     <div class="flex-1 min-w-[140px] relative">
-                        <div class="bg-mint-light backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
+                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
                             <div class="flex flex-col justify-center h-full">
                                 <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Check-in</span>
                                 <input type="date" name="check_in" id="checkinValue" class="text-sm font-medium text-navy-dark">
@@ -56,7 +56,7 @@
 
                     <!-- Check-out -->
                     <div class="flex-1 min-w-[140px] relative">
-                        <div class="bg-mint-light backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
+                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
                             <div class="flex flex-col justify-center h-full">
                                 <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Check-out</span>
                                 <input type="date" name="check_out" id="checkoutValue" class="text-sm font-medium text-navy-dark">
@@ -65,7 +65,7 @@
                     </div>
 
                     <!-- Search Button -->
-                    <button type="submit" class="btn-hover bg-teal-medium text-mint-light font-semibold px-6 py-3 rounded-lg flex items-center gap-2 min-w-[120px] justify-center h-14">
+                    <button type="submit" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 min-w-[120px] justify-center h-14">
                         <span>Search</span>
                     </button>
                 </div>
@@ -114,7 +114,7 @@
                         <span>Kami Samakan Harga</span>
                     </div>
                 </div>
-                <a href="{% url 'reservation_with_hotel' hotel_id=featured_hotel.id %}" class="btn-hover bg-teal-medium text-mint-light font-semibold px-6 py-3 rounded-md hover-mint-bg">Pilih Kamar</a>
+                <a href="{% url 'reservation_with_hotel' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
             </div>
         </div>
 

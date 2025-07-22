@@ -3,95 +3,130 @@
 {% load humanize %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 py-6">
+<div class="container mx-auto px-4 max-w-6xl py-6">
   <div class="relative z-10 flex justify-center items-center">
     <div class="container mx-auto px-4 max-w-6xl">
-      <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-4">
-        <div class="flex flex-col lg:flex-row gap-2 items-stretch rounded-lg p-2">
-          <!-- Destination -->
-           <div class="flex-1 min-w-[200px] relative">
-            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]" onclick="toggleDestinationDropdown()">
+      <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-6">
+        <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+          <!-- Destination (Region) -->
+          <div class="flex-1 min-w-[200px] relative">
+            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[--teal-medium] group" onclick="toggleDestinationDropdown()" style="border-color: var(--teal-medium);">
               <div class="flex flex-col justify-center h-full">
-                <span class="text-xs font-semibold text-[#3D8361] uppercase tracking-wide">Destinasi</span>
-                <span class="text-sm font-medium text-[#1C6758]" id="destinationValue">Pilih Hotel</span>
+                <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Destinasi</span>
+                <span class="text-sm font-medium text-[--teal-dark]" id="destinationValue">Pilih Hotel</span>
               </div>
             </div>
-            <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50">
-              <div class="border-t max-h-48 overflow-y-auto">
+            <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50" style="border-color: var(--teal-medium);">
+              <div class="border-t max-h-48 overflow-y-auto" style="border-color: var(--teal-medium);">
                 {% for hotel in all_hotels %}
-                <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
+                <div class="p-3 hover:bg-[--mint-light] cursor-pointer" style="hover:bg-color: var(--mint-light);" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
                   <div class="flex items-center gap-2">
-                    <span class="font-medium">{{ hotel.region }}</span>
+                    <span class="font-medium text-[--teal-dark]" style="color: var(--teal-dark);">{{ hotel.region }}</span>
                   </div>
-                  <span class="text-xs text-gray-500">{{ hotel.name }}</span>
+                  <span class="text-xs text-[--teal-medium]" style="color: var(--teal-medium);">{{ hotel.name }}</span>
                 </div>
                 {% endfor %}
               </div>
             </div>
+            <input type="hidden" name="destination_id" id="selectedDestination">
           </div>
-          <!-- Check-in -->
-          <div class="flex-1 min-w-[140px] relative">
-            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]">
+          <!-- Check-in (Range) -->
+          <div class="flex-1 min-w-[280px] relative">
+            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 hover:shadow-md transition-shadow border-2 border-[--teal-medium] group">
               <div class="flex flex-col justify-center h-full">
-                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-in</span>
-                <input type="date" name="check_in" id="checkinValue" class="text-sm font-medium text-gray-800">
+                <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Check-in</span>
+                <input type="text" name="date_range" id="dateRange" class="text-sm font-medium text-[--teal-dark] w-full focus:outline-none" placeholder="Pilih rentang tanggal" readonly>
               </div>
             </div>
           </div>
-          <!-- Check-out -->
-          <div class="flex-1 min-w-[140px] relative">
-            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[#3D8361]">
-              <div class="flex flex-col justify-center h-full">
-                <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Check-out</span>
-                <input type="date" name="check_out" id="checkoutValue" class="text-sm font-medium text-gray-800">
-              </div>
-            </div>
-          </div>
-          <!-- Search Button -->
-          <button type="submit" class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 min-w-[120px] justify-center h-14">
-            <span>Search</span>
+          <!-- Tombol Cari -->
+          <button type="submit" class="bg-[--teal-medium] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[--teal-dark] transition-colors flex items-center gap-2 min-w-[120px] justify-center h-14" style="background-color: var(--teal-medium);">
+            <span>Cari</span>
           </button>
+        </div>
+        <!-- Filter Rating Bintang -->
+        <div class="mt-4 flex items-center gap-3 ml-0 lg:ml-0">
+          <span class="text-sm font-medium text-[--navy-dark]" style="color: var(--navy-dark);">Rating Bintang:</span>
+          <div class="flex gap-2">
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="2" style="border-color: var(--teal-medium);">
+              2 ★
+            </button>
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="3" style="border-color: var(--teal-medium);">
+              3 ★
+            </button>
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="4" style="border-color: var(--teal-medium);">
+              4 ★
+            </button>
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="5" style="border-color: var(--teal-medium);">
+              5 ★
+            </button>
+          </div>
         </div>
       </form>
     </div>
   </div>
 
-    <h2 class="text-2xl font-bold mb-6">Daftar Hotel</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for h in hotel_data %}
-        <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
-          <div class="bg-white shadow rounded-2xl h-full hover:-translate-y-1 transform transition">
-            <div class="relative">
-              {% if h.image %}
-                <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-40 object-cover">
-              {% else %}
-                <img src="{% static 'images/no-image.png' %}" class="w-full h-40 object-cover" alt="No Image">
-              {% endif %}
-              <span class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-md font-semibold">
-                  {{ h.obj.average_rating|floatformat:1 }}/10
-              </span>
-            </div>
-            <div class="p-4">
-              <h3 class="font-semibold text-base truncate">{{ h.obj.name }}</h3>
-              <p class="text-sm text-gray-500 truncate">{{ h.obj.location }}</p>
-              <p class="text-xs text-gray-400 mb-2">{{ h.jumlah_ulasan }} ulasan</p>
-              <p class="text-right text-blue-600 font-bold text-sm">
-                  {% if h.harga_termurah %}
-                      Dari Rp{{ h.harga_termurah|intcomma }}
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
+    {% for h in hotel_data %}
+    {% if h.obj.id %}
+    <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
+      <div class="bg-white shadow rounded-2xl flex flex-col hover:-translate-y-1 transform transition h-[400px]">
+        <div class="relative h-60">
+          {% if h.image %}
+            <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover">
+          {% else %}
+            <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover" alt="No Image">
+          {% endif %}
+          <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1" style="color: var(--navy-dark);">
+            {% with rating=h.obj.average_rating|floatformat:1 %}
+              <span class="text-sm font-bold text-[--navy-dark]" style="color: var(--navy-dark);">{{ rating }}/5</span>
+              <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} ulasan</span>
+            {% endwith %}
+          </div>
+        </div>
+        <div class="p-4 flex flex-col flex-grow">
+          <div class="flex flex-col gap-2 mb-2">
+            <div class="min-h-[3rem]">
+              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
+              <div class="flex items-center">
+                {% for i in "12345"|slice:":h.obj.star_rating" %}
+                  {% if forloop.counter0 < h.obj.star_rating %}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium]" style="color: var(--teal-medium);" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                    </svg>
                   {% else %}
-                      Tidak tersedia
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--mint-light]" style="color: var(--mint-light);" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                    </svg>
                   {% endif %}
-              </p>
+                {% endfor %}
+              </div>
             </div>
           </div>
-        </a>        
-        {% endfor %}
-    </div>
+          <p class="text-sm text-[--teal-dark] truncate" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
+          <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
+            {% if h.harga_termurah %}
+             Rp {{ h.harga_termurah|intcomma }}
+            {% else %}
+              Tidak tersedia
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </a>
+    {% endif %}
+    {% empty %}
+    <p class="text-[--teal-dark]" style="color: var(--teal-dark);">Tidak ada hotel yang ditemukan.</p>
+    {% endfor %}
+  </div>
 </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   function selectDestination(hotelName, hotelId) {
-    // Langsung redirect ke halaman detail
-    window.location.href = `/hotels/${hotelId}/`;
+    document.getElementById('destinationValue').textContent = hotelName;
+    document.getElementById('selectedDestination').value = hotelId;
   }
 
   function toggleDestinationDropdown() {
@@ -99,6 +134,68 @@
     dropdown.classList.toggle('hidden');
   }
 
+  // Inisialisasi pemilih tanggal
+  flatpickr("#dateRange", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    defaultDate: null,
+    theme: "material_blue",
+    locale: {
+      rangeSeparator: ' sampai ',
+      firstDayOfWeek: 1
+    },
+    onChange: function(selectedDates, dateStr, instance) {
+      if (selectedDates.length === 2) {
+        const start = selectedDates[0].toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).split('/').reverse().join('-');
+        const end = selectedDates[1].toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).split('/').reverse().join('-');
+        instance.input.value = `${start} sampai ${end}`;
+      } else {
+        instance.input.value = dateStr;
+      }
+    }
+  });
+
+  // Pemilihan rating bintang (tanpa submit otomatis)
+  const starFilters = document.querySelectorAll('.star-filter');
+  const selectedRatings = new Set();
+  starFilters.forEach(button => {
+    button.addEventListener('click', function() {
+      const rating = this.getAttribute('data-rating');
+      const isSelected = this.classList.contains('bg-[--teal-medium]');
+
+      if (isSelected) {
+        this.classList.remove('bg-[--teal-medium]', 'text-white', 'border-[--teal-medium]');
+        this.classList.add('border-gray-300', 'text-gray-700');
+        selectedRatings.delete(rating);
+      } else {
+        this.classList.add('bg-[--teal-medium]', 'text-white', 'border-[--teal-medium]');
+        this.classList.remove('border-gray-300', 'text-gray-700');
+        selectedRatings.add(rating);
+      }
+
+      // Update hidden inputs without submitting
+      const form = this.closest('form');
+      form.querySelectorAll('input[name="star_rating"]').forEach(input => input.remove());
+      selectedRatings.forEach(rating => {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'star_rating';
+        hiddenInput.value = rating;
+        form.appendChild(hiddenInput);
+      });
+    });
+  });
+
+  // Close dropdown when clicking outside
   document.addEventListener('click', function(e) {
     const dropdown = document.getElementById('destinationDropdown');
     const trigger = document.querySelector('[onclick="toggleDestinationDropdown()"]');

@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import EmailMultiAlternatives
+from django.contrib import messages
+from django.conf import settings
 from django.template.loader import render_to_string
 from .forms import CustomUserCreationForm, ReservationForm, PaymentForm, ReviewForm
 from .models import Hotel, HotelGallery, Room, Reservation, Payment, Review, UserProfile, Review, Facility
@@ -13,6 +15,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import AccessMixin
 from django.utils import timezone
 from decimal import Decimal
+from functools import reduce
 
 # Mixin untuk memeriksa sesi aplikasi
 class AppLoginRequiredMixin(AccessMixin):
@@ -37,7 +40,6 @@ class HomeView(TemplateView):
             context['featured_hotel'].location = "Lokasi tidak tersedia"
         return context
 
-# Register
 class RegisterView(FormView):
     template_name = 'accounts/register.html'
     form_class = CustomUserCreationForm
@@ -51,21 +53,28 @@ class RegisterView(FormView):
             gender=form.cleaned_data['gender'],
             address=''  # Kosong karena tidak wajib di form
         )
+        
         # Kirim email selamat datang
         subject = 'Selamat Datang di Hotel Djangoo – Pendaftaran Berhasil!'
-        from_email = 'admin@hoteldjangoo.com'
+        from_email = settings.DEFAULT_FROM_EMAIL  # Menggunakan email dari settings
         to_email = [user.email]
         context = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
+            'first_name': user.first_name or user.username,
+            'last_name': user.last_name or '',
             'email': user.email,
             'tanggal_daftar': user.date_joined.strftime('%d %B %Y') if hasattr(user, 'date_joined') else 'Hari ini'
         }
         html_content = render_to_string('emails/welcome_email.html', context)
-        text_content = f"Halo {user.first_name}, akun Anda berhasil dibuat."
+        text_content = f"Halo {user.first_name or user.username}, akun Anda berhasil dibuat."
         msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
         msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        
+        try:
+            msg.send()
+            messages.success(self.request, 'Registrasi berhasil! Cek email Anda untuk konfirmasi.')
+        except Exception as e:
+            messages.error(self.request, f'Gagal mengirim email: {str(e)}')
+        
         return super().form_valid(form)
 
 # Login
@@ -109,14 +118,9 @@ class HotelListView(TemplateView):
         hotel_data = []
 
         for hotel in hotels:
-            # Ambil gambar pertama
             gambar = hotel.gallery.first()
-
-            # Ambil harga termurah
             room_types = hotel.room_types.all()
             harga_termurah = min([rt.base_price for rt in room_types], default=None)
-
-            # Ambil jumlah ulasan
             jumlah_ulasan = Review.objects.filter(reservation__room__hotel=hotel).count()
 
             hotel_data.append({
@@ -129,35 +133,53 @@ class HotelListView(TemplateView):
         context['hotel_data'] = hotel_data
         context['all_hotels'] = hotels
         return context
-    
+
 # Pencarian hotel
 class HotelSearchView(View):
-    template_name = 'hotel/hotel_list.html'
+    template_name = 'hotel/hotel_search.html'
 
     def get(self, request):
-        query = request.GET.get('destination', '')
-        check_in = request.GET.get('check_in')
-        check_out = request.GET.get('check_out')
-        hotels = Hotel.objects.all()
-        if query:
-            hotels = hotels.filter(
-                Q(name__icontains=query) | Q(location__icontains=query)
-            )
-        if check_in and check_out:
+        hotels = Hotel.objects.all().prefetch_related('room_types', 'gallery')
+        destination_id = request.GET.get('destination_id')
+        star_ratings = request.GET.getlist('star_rating')
+        date_range = request.GET.get('date_range')  # Hanya untuk tampilan, tidak memengaruhi pencarian
+
+        # Inisialisasi hotel_data
+        hotel_data = []
+
+        # Filter berdasarkan destinasi (region dari hotel yang dipilih)
+        if destination_id:
+            hotel = Hotel.objects.filter(id=destination_id).first()
+            if hotel and hotel.region:
+                hotels = hotels.filter(region=hotel.region)
+
+        # Filter berdasarkan star rating (multi-select) dengan logika OR
+        if star_ratings and any(star_ratings):  # Pastikan ada nilai yang valid
             try:
-                check_in_date = date.fromisoformat(check_in)
-                check_out_date = date.fromisoformat(check_out)
-                available_rooms = Room.objects.filter(
-                    is_available=True
-                ).exclude(
-                    reservations__check_in__lt=check_out_date,
-                    reservations__check_out__gt=check_in_date,
-                    reservations__status__in=['PENDING', 'PAID', 'CHECKED_IN']
-                )
-                hotels = hotels.filter(rooms__in=available_rooms).distinct()
+                star_ratings = [int(rating) for rating in star_ratings if rating]  # Konversi ke integer dan filter nilai kosong
+                if star_ratings:
+                    hotels = hotels.filter(reduce(lambda x, y: x | y, [Q(star_rating=rating) for rating in star_ratings]))
             except ValueError:
-                pass
-        return render(request, self.template_name, {'hotels': hotels})
+                pass  # Lewati filter jika konversi gagal
+
+        # Format data seperti di HotelListView
+        for hotel in hotels:
+            gambar = hotel.gallery.first()
+            room_types = hotel.room_types.all()
+            harga_termurah = min([rt.base_price for rt in room_types], default=None)
+            jumlah_ulasan = Review.objects.filter(reservation__room__hotel=hotel).count()
+
+            hotel_data.append({
+                'obj': hotel,
+                'image': gambar.image.url if gambar else None,
+                'harga_termurah': harga_termurah,
+                'jumlah_ulasan': jumlah_ulasan,
+            })
+
+        return render(request, self.template_name, {
+            'hotel_data': hotel_data,
+            'all_hotels': Hotel.objects.all()
+        })
 
 # Detail hotel
 class HotelDetailView(TemplateView):

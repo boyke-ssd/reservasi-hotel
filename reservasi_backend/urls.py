@@ -7,9 +7,11 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+
     path('hotels/', views.HotelListView.as_view(), name='hotel_list'),
     path('hotels/search/', views.HotelSearchView.as_view(), name='hotel_search'),
     path('hotels/<int:hotel_id>/', views.HotelDetailView.as_view(), name='hotel_detail'),
+    
     path('reservation/', views.ReservationView.as_view(), name='reservation'),
     path('reservation/<int:hotel_id>/', views.ReservationView.as_view(), name='reservation_with_hotel'),
     path('payment/<int:reservation_id>/', views.PaymentView.as_view(), name='payment'),

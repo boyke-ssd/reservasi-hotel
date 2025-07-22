@@ -79,7 +79,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 # ====================
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
-    list_display = ['name', 'location', 'region', 'average_rating', 'created_at']
+    list_display = ['name', 'location', 'region', 'average_rating', 'star_rating','created_at']
     search_fields = ['name', 'location', 'description', 'region']
     list_filter = ['created_at', 'region']  # Tambahkan filter berdasarkan region
     inlines = [HotelGalleryInline, RoomTypeInline]
