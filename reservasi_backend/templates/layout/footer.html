@@ -52,28 +52,28 @@
                 <ul class="space-y-2">
                     <li><a href="{% url 'home' %}" class="text-gray-300 link-hover">Beranda</a></li>
                     <li><a href="{% url 'about' %}" class="text-gray-300 link-hover">Tentang Kami</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Layanan</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Portfolio</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Kontak</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Hotel</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Reservasi</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Riwayat Reservasi</a></li>
                 </ul>
             </div>
             
             <!-- Services -->
             <div class="space-y-4">
-                <h4 class="text-lg font-semibold text-mint-light cursor-grab">Layanan Kami</h4>
+                <h4 class="text-lg font-semibold text-mint-light cursor-grab">Fasilitas & Layanan</h4>
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-gray-300 link-hover">Web Development</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Mobile Apps</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">UI/UX Design</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Digital Marketing</a></li>
-                    <li><a href="#" class="text-gray-300 link-hover">Konsultasi IT</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Kamar & Suite Mewah</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Restoran & Kuliner</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Kolam Renang</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Spa & Relaksasi</a></li>
+                    <li><a href="#" class="text-gray-300 link-hover">Wifi & Layanan Digital</a></li>
                 </ul>
             </div>
             
             <!-- Newsletter -->
             <div class="space-y-4">
-                <h4 class="text-lg font-semibold text-mint-light">Newsletter</h4>
-                <p class="text-gray-300 text-sm">Dapatkan update terbaru dan tips menarik langsung ke email Anda.</p>
+                <h4 class="text-lg font-semibold text-mint-light">Saran & Kritik</h4>
+                <p class="text-gray-300 text-sm">Berikan kritik dan saran langsung ke pada kami.</p>
                 <div x-data="{ email: '', subscribed: false }" class="space-y-3">
                     <input 
                         x-model="email"
@@ -86,7 +86,7 @@
                         class="w-full bg-mint-light text-navy-dark font-semibold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 btn-hover"
                         :class="{ 'bg-green-500': subscribed }"
                     >
-                        <span x-show="!subscribed">Berlangganan</span>
+                        <span x-show="!subscribed">Kirim</span>
                         <span x-show="subscribed">✓ Terima kasih!</span>
                     </button>
                 </div>

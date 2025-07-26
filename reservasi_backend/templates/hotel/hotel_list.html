@@ -87,19 +87,21 @@
         <div class="p-4 flex flex-col flex-grow">
           <div class="flex flex-col gap-2 mb-2">
             <div class="min-h-[3rem]">
-              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
+              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2">{{ h.obj.name }}</h3>
               <div class="flex items-center">
-                {% for i in "12345"|slice:":h.obj.star_rating" %}
-                  {% if forloop.counter0 < h.obj.star_rating %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium]" style="color: var(--teal-medium);" fill="currentColor" viewBox="0 0 24 24">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= h.obj.star_rating %}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
                     </svg>
                   {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--mint-light]" style="color: var(--mint-light);" fill="currentColor" viewBox="0 0 24 24">
+                    <!-- Bintang tidak aktif (warna abu-abu atau mint-light) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
                     </svg>
                   {% endif %}
                 {% endfor %}
+
               </div>
             </div>
           </div>

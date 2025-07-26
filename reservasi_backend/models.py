@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 # Fungsi default untuk ForeignKey
 def get_default_hotel():
@@ -70,7 +71,7 @@ class Hotel(models.Model):
             ('Lampung', 'Lampung'),
             ('Jakarta', 'Jakarta'),
             ('Surabaya', 'Surabaya'),
-        ],  # Tambahkan daerah lain sesuai kebutuhan
+        ],
         verbose_name=_("Region")
     )
     description = models.TextField(
@@ -100,7 +101,6 @@ class Hotel(models.Model):
         return self.name
 
     def update_average_rating(self):
-        # Asumsi relasi melalui Reservation dan Review
         from django.db.models import Avg
         reviews = Review.objects.filter(reservation__room__hotel=self)
         if reviews.exists():
@@ -158,7 +158,7 @@ class RoomType(models.Model):
     )
     base_price = models.DecimalField(
         max_digits=10,
-        decimal_places=3,
+        decimal_places=2,
         verbose_name=_("Harga per Malam")
     )
 
@@ -223,7 +223,6 @@ class Room(models.Model):
         return f"Kamar {self.number} - {self.room_type.name} ({self.hotel.name})"
 
     def clean(self):
-        # Validasi nomor kamar unik per hotel
         if Room.objects.filter(hotel=self.hotel, number=self.number).exclude(pk=self.pk).exists():
             raise ValidationError(_("Nomor kamar sudah ada untuk hotel ini."))
 
@@ -250,11 +249,35 @@ class Reservation(models.Model):
         related_name='reservations',
         verbose_name=_("Kamar")
     )
+    first_name = models.CharField(
+        max_length=30,
+        verbose_name=_("Nama Depan")
+    )
+    last_name = models.CharField(
+        max_length=30,
+        verbose_name=_("Nama Belakang")
+    )
+    email = models.EmailField(
+        verbose_name=_("Email"),
+        null=True,
+        blank=True
+    )
+    phone = models.CharField(
+        max_length=20,
+        verbose_name=_("Nomor Telepon"),
+        null=True,
+        blank=True
+    )
     check_in = models.DateField(
         verbose_name=_("Tanggal Check-in")
     )
     check_out = models.DateField(
         verbose_name=_("Tanggal Check-out")
+    )
+    special_request = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Permintaan Khusus")
     )
     total_price = models.DecimalField(
         max_digits=10,
@@ -279,28 +302,24 @@ class Reservation(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.room.number} ({self.check_in} - {self.check_out})"
+        return f"{self.first_name} {self.last_name} - {self.room.number} ({self.check_in} - {self.check_out})"
 
     def clean(self):
-        # Validasi tanggal wajib diisi
         if not self.check_in or not self.check_out:
             raise ValidationError(_("Tanggal check-in dan check-out harus diisi."))
-
-        # Validasi check_out > check_in
         if self.check_out <= self.check_in:
             raise ValidationError(_("Tanggal check-out harus lebih besar dari tanggal check-in."))
-
-        # Validasi ketersediaan kamar
-        if self.room:  # Pastikan kamar dipilih
+        if self.room:
             overlapping_reservations = Reservation.objects.filter(
                 room=self.room,
                 check_in__lt=self.check_out,
                 check_out__gt=self.check_in,
                 status__in=['PENDING', 'PAID', 'CHECKED_IN']
             ).exclude(pk=self.pk)
-
             if overlapping_reservations.exists():
                 raise ValidationError(_("Kamar ini sudah dipesan untuk tanggal yang diminta."))
+        if self.phone and not self.phone.isdigit():
+            raise ValidationError(_("Nomor telepon harus berupa angka."))
 
     def duration(self):
         return (self.check_out - self.check_in).days
@@ -308,6 +327,8 @@ class Reservation(models.Model):
     def calculate_total_price(self):
         duration = self.duration()
         self.total_price = self.room.room_type.base_price * duration
+        tax = self.total_price * Decimal('0.10')
+        self.total_price += tax
         self.save()
 
 # ======================
@@ -316,7 +337,6 @@ class Reservation(models.Model):
 class Payment(models.Model):
     PAYMENT_METHODS = [
         ('BANK_TRANSFER', _('Transfer Bank')),
-        ('CREDIT_CARD', _('Kartu Kredit')),
         ('E_WALLET', _('Dompet Digital')),
     ]
 
@@ -331,15 +351,15 @@ class Payment(models.Model):
         default='BANK_TRANSFER',
         verbose_name=_("Metode Pembayaran")
     )
-    is_paid = models.BooleanField(
-        default=False,
-        verbose_name=_("Lunas")
-    )
     proof = models.ImageField(
         upload_to='payment_proofs/',
         blank=True,
         null=True,
         verbose_name=_("Bukti Pembayaran")
+    )
+    is_paid = models.BooleanField(
+        default=False,
+        verbose_name=_("Lunas")
     )
     paid_at = models.DateTimeField(
         blank=True,

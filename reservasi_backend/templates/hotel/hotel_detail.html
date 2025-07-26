@@ -1,6 +1,7 @@
 {% extends 'layout/base.html' %}
-{% load static %}
-{% load humanize %}
+{% load static humanize %}
+
+{% block title %}{{ hotel.name }} - Hotel Djangoo{% endblock %}
 
 {% block content %}
 <!-- Hotel Details Section -->
@@ -43,7 +44,7 @@
                         <span>Kami Samakan Harga</span>
                     </div>
                 </div>
-                <a href="{% url 'reservation_with_hotel' hotel_id=hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
+                <a href="{% url 'reservation_form' hotel_id=hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
             </div>
         </div>
 
@@ -86,6 +87,9 @@
                     <h3 class="text-lg font-medium">{{ room.room_type.name }}</h3>
                     <p class="text-gray-600">Harga: Rp {{ room.room_type.base_price|intcomma }}</p>
                     <p class="text-gray-600">Kapasitas: {{ room.room_type.capacity }} orang</p>
+                    <a href="{% url 'reservation_form' hotel_id=hotel.id %}?room_id={{ room.id }}&check_in={{ check_in }}&check_out={{ check_out }}" class="mt-2 inline-block bg-teal-medium text-white px-4 py-2 rounded-md hover:bg-teal-dark transition-colors">
+                        Pesan Kamar Ini
+                    </a>
                 </div>
             {% endfor %}
         {% else %}

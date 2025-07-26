@@ -1,0 +1,17 @@
+{% extends "layout/base.html" %}
+{% load static humanize %}
+
+{% block title %}Detail Reservasi - Hotel Djangoo{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-semibold text-teal-dark mb-4">Detail Reservasi</h2>
+    <p class="text-gray-800"><strong>ID Reservasi:</strong> {{ reservation.id }}</p>
+    <p class="text-gray-800"><strong>Hotel:</strong> {{ reservation.room.hotel.name }}</p>
+    <p class="text-gray-800"><strong>Kamar:</strong> {{ reservation.room.room_type.name }} (No. {{ reservation.room.number }})</p>
+    <p class="text-gray-800"><strong>Check-in:</strong> {{ reservation.check_in|date:"d F Y" }}</p>
+    <p class="text-gray-800"><strong>Check-out:</strong> {{ reservation.check_out|date:"d F Y" }}</p>
+    <p class="text-gray-800"><strong>Total Harga:</strong> Rp {{ reservation.total_price|intcomma }}</p>
+    <p class="text-gray-800"><strong>Status:</strong> {{ reservation.get_status_display }}</p>
+</div>
+{% endblock %}

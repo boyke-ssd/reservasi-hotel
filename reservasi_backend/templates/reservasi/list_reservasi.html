@@ -1,0 +1,74 @@
+{% extends "layout/base.html" %}
+{% load static humanize %}
+
+{% block title %}Daftar Reservasi - Hotel Djangoo{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-navy-dark mb-6">Daftar Reservasi</h1>
+    
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green{% else %}red{% endif %}-100 text-{% if message.tags == 'success' %}green{% else %}red{% endif %}-800 p-4 rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if reservations %}
+        <div class="grid grid-cols-1 gap-6 text-navy-dark">
+            {% for reservation in reservations %}
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p><strong>Hotel:</strong> {{ reservation.room.hotel.name }}</p>
+                            <p><strong>Kamar:</strong> {{ reservation.room.room_type.name }} (No. {{ reservation.room.number }})</p>
+                            <p><strong>Check-in:</strong> {{ reservation.check_in|date:"d F Y" }}</p>
+                            <p><strong>Check-out:</strong> {{ reservation.check_out|date:"d F Y" }}</p>
+                        </div>
+                        <div>
+                            <p><strong>Total Harga:</strong> Rp {{ reservation.total_price|intcomma }}</p>
+                            <p><strong>Status:</strong> 
+                                {% if reservation.status == 'PENDING' %}
+                                    Menunggu Konfirmasi
+                                {% elif reservation.status == 'PAID' %}
+                                    Berhasil
+                                {% elif reservation.status == 'CANCELLED' %}
+                                    Gagal
+                                {% elif reservation.status == 'CHECKED_IN' %}
+                                    Check-in
+                                {% elif reservation.status == 'CHECKED_OUT' %}
+                                    Selesai
+                                {% endif %}
+                            </p>
+                            {% if reservation.special_request %}
+                                <p><strong>Permintaan Khusus:</strong> {{ reservation.special_request }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'reservation_detail' reservation.id %}" class="bg-teal-medium text-white px-4 py-2 rounded-md hover:bg-teal-dark transition-colors">
+                            Lihat Detail
+                        </a>
+                        {% if reservation.status == 'PENDING' or reservation.status == 'PAID' %}
+                            <form method="post" action="{% url 'cancel_reservation' reservation.id %}" class="inline-block mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Batalkan Reservasi</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white p-6 rounded-lg shadow text-center">
+            <p class="text-gray-600 text-lg">Tidak ada reservasi yang dibuat.</p>
+            <a href="{% url 'hotel_list' %}" class="mt-4 inline-block bg-teal-medium text-white px-4 py-2 rounded-md hover:bg-teal-dark transition-colors">
+                Cari Hotel Sekarang
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

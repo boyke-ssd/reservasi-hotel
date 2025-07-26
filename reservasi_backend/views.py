@@ -1,5 +1,5 @@
-from django.views.generic import TemplateView, FormView, View
-from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import TemplateView, FormView, View, ListView
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import AuthenticationForm
@@ -8,23 +8,18 @@ from django.contrib import messages
 from django.conf import settings
 from django.template.loader import render_to_string
 from .forms import CustomUserCreationForm, ReservationForm, PaymentForm, ReviewForm
-from .models import Hotel, HotelGallery, Room, Reservation, Payment, Review, UserProfile, Review, Facility
+from .models import Hotel, HotelGallery, Room, Reservation, Payment, Review, UserProfile, Facility
 from django.db.models import Q
 from datetime import date, datetime
 from django.contrib.auth import authenticate
-from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from decimal import Decimal
 from functools import reduce
 
-# Mixin untuk memeriksa sesi aplikasi
-class AppLoginRequiredMixin(AccessMixin):
+# Mixin untuk memeriksa login
+class AppLoginRequiredMixin(LoginRequiredMixin):
     login_url = reverse_lazy('login')
-
-    def dispatch(self, request, *args, **kwargs):
-        if 'app_auth' not in request.session or 'user_id' not in request.session['app_auth']:
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
 
 # Beranda publik
 class HomeView(TemplateView):
@@ -40,6 +35,7 @@ class HomeView(TemplateView):
             context['featured_hotel'].location = "Lokasi tidak tersedia"
         return context
 
+# Registrasi
 class RegisterView(FormView):
     template_name = 'accounts/register.html'
     form_class = CustomUserCreationForm
@@ -51,16 +47,14 @@ class RegisterView(FormView):
             user=user,
             phone=form.cleaned_data['phone'],
             gender=form.cleaned_data['gender'],
-            address=''  # Kosong karena tidak wajib di form
+            address=''
         )
         
-        # Kirim email selamat datang
-        subject = 'Selamat Datang di Hotel Djangoo – Pendaftaran Berhasil!'
-        from_email = settings.DEFAULT_FROM_EMAIL  # Menggunakan email dari settings
+        subject = 'Selamat Datang di Hotel Djangoo'
+        from_email = settings.DEFAULT_FROM_EMAIL
         to_email = [user.email]
         context = {
             'first_name': user.first_name or user.username,
-            'last_name': user.last_name or '',
             'email': user.email,
             'tanggal_daftar': user.date_joined.strftime('%d %B %Y') if hasattr(user, 'date_joined') else 'Hari ini'
         }
@@ -71,9 +65,9 @@ class RegisterView(FormView):
         
         try:
             msg.send()
-            messages.success(self.request, 'Registrasi berhasil! Cek email Anda untuk konfirmasi.')
+            messages.success(self.request, 'Registrasi berhasil! Cek email Anda.')
         except Exception as e:
-            messages.error(self.request, f'Gagal mengirim email: {str(e)}')
+            messages.warning(self.request, f'Registrasi berhasil, tapi gagal mengirim email: {str(e)}')
         
         return super().form_valid(form)
 
@@ -81,21 +75,12 @@ class RegisterView(FormView):
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     authentication_form = AuthenticationForm
-    redirect_authenticated_user = False
+    redirect_authenticated_user = True
 
     def form_valid(self, form):
-        # Autentikasi pengguna tanpa memanggil login()
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        user = authenticate(self.request, username=username, password=password)
-        if user is not None:
-            # Simpan user_id di namespace app_auth
-            self.request.session['app_auth'] = {'user_id': user.id}
-            self.request.session.modified = True
-            return redirect(self.get_success_url())
-        else:
-            form.add_error(None, "Username atau password salah.")
-            return self.form_invalid(form)
+        response = super().form_valid(form)
+        self.request.session['app_auth'] = {'user_id': self.request.user.id}
+        return response
 
     def get_success_url(self):
         return reverse_lazy('home')
@@ -103,9 +88,9 @@ class CustomLoginView(LoginView):
 # Logout
 class CustomLogoutView(View):
     def get(self, request):
-        # Hapus sesi aplikasi
         if 'app_auth' in request.session:
             del request.session['app_auth']
+        request.session.flush()
         return redirect('home')
 
 # Daftar hotel
@@ -120,7 +105,7 @@ class HotelListView(TemplateView):
         for hotel in hotels:
             gambar = hotel.gallery.first()
             room_types = hotel.room_types.all()
-            harga_termurah = min([rt.base_price for rt in room_types], default=None)
+            harga_termurah = min([rt.base_price for rt in room_types], default=0)
             jumlah_ulasan = Review.objects.filter(reservation__room__hotel=hotel).count()
 
             hotel_data.append({
@@ -142,31 +127,26 @@ class HotelSearchView(View):
         hotels = Hotel.objects.all().prefetch_related('room_types', 'gallery')
         destination_id = request.GET.get('destination_id')
         star_ratings = request.GET.getlist('star_rating')
-        date_range = request.GET.get('date_range')  # Hanya untuk tampilan, tidak memengaruhi pencarian
 
-        # Inisialisasi hotel_data
         hotel_data = []
 
-        # Filter berdasarkan destinasi (region dari hotel yang dipilih)
         if destination_id:
             hotel = Hotel.objects.filter(id=destination_id).first()
             if hotel and hotel.region:
                 hotels = hotels.filter(region=hotel.region)
 
-        # Filter berdasarkan star rating (multi-select) dengan logika OR
-        if star_ratings and any(star_ratings):  # Pastikan ada nilai yang valid
+        if star_ratings:
             try:
-                star_ratings = [int(rating) for rating in star_ratings if rating]  # Konversi ke integer dan filter nilai kosong
+                star_ratings = [int(rating) for rating in star_ratings if rating]
                 if star_ratings:
                     hotels = hotels.filter(reduce(lambda x, y: x | y, [Q(star_rating=rating) for rating in star_ratings]))
             except ValueError:
-                pass  # Lewati filter jika konversi gagal
+                pass
 
-        # Format data seperti di HotelListView
         for hotel in hotels:
             gambar = hotel.gallery.first()
             room_types = hotel.room_types.all()
-            harga_termurah = min([rt.base_price for rt in room_types], default=None)
+            harga_termurah = min([rt.base_price for rt in room_types], default=0)
             jumlah_ulasan = Review.objects.filter(reservation__room__hotel=hotel).count()
 
             hotel_data.append({
@@ -190,26 +170,19 @@ class HotelDetailView(TemplateView):
         hotel_id = self.kwargs['hotel_id']
         hotel = get_object_or_404(Hotel, pk=hotel_id)
 
-        gallery = HotelGallery.objects.filter(hotel=hotel_id)
+        gallery = HotelGallery.objects.filter(hotel_id=hotel_id)
         rooms = Room.objects.filter(hotel=hotel, is_available=True).select_related('room_type')
         reviews = Review.objects.filter(reservation__room__hotel=hotel)
 
-        # Harga termurah
         harga_list = [
             r.room_type.base_price
             for r in rooms
             if r.room_type and r.room_type.base_price is not None
         ]
-        harga_termurah = min(harga_list) if harga_list else None
-        context['harga_termurah'] = harga_termurah
+        harga_termurah = min(harga_list) if harga_list else 0
 
-        # Ambil semua kamar hotel ini
-        rooms = Room.objects.filter(hotel=hotel, is_available=True).prefetch_related('facilities')
-        
-        # Kumpulkan semua fasilitas dari kamar-kamar hotel tersebut
-        fasilitas_set = Facility.objects.filter(room__in=rooms).distinct()
+        facilities = Facility.objects.filter(room__in=rooms).distinct()
 
-        # Ambil checkin/checkout dari URL query parameter
         check_in = self.request.GET.get('check_in')
         check_out = self.request.GET.get('check_out')
 
@@ -217,124 +190,162 @@ class HotelDetailView(TemplateView):
             'hotel': hotel,
             'gallery': gallery,
             'rooms': rooms,
-            'facilities': fasilitas_set,
+            'facilities': facilities,
             'reviews': reviews,
             'harga_termurah': harga_termurah,
             'check_in': check_in,
             'check_out': check_out,
-            
         })
 
         return context
 
 # Reservasi
 class ReservationView(AppLoginRequiredMixin, View):
-    template_name = 'reservasi/reservasi.html'
-    login_url = reverse_lazy('login')
-    TAX_RATE = Decimal('0.10')  # 10%
+    form_template_name = 'reservasi/reservasi.html'
+    list_template_name = 'reservasi/list_reservasi.html'
+    TAX_RATE = Decimal('0.10')
 
     def get(self, request, hotel_id=None):
-        hotel = get_object_or_404(Hotel, pk=hotel_id) if hotel_id else None
-        rooms = Room.objects.filter(hotel=hotel, is_available=True)
+        if hotel_id:
+            # Tampilkan form reservasi
+            hotel = get_object_or_404(Hotel, pk=hotel_id)
+            rooms = Room.objects.filter(hotel=hotel, is_available=True).select_related('room_type')
+            check_in = request.GET.get('check_in') or date.today().strftime('%Y-%m-%d')
+            check_out = request.GET.get('check_out') or (date.today() + timezone.timedelta(days=1)).strftime('%Y-%m-%d')
+            room_id = request.GET.get('room_id')
+            room = Room.objects.filter(pk=room_id).first() if room_id else rooms.first() if rooms.exists() else None
 
-        check_in = request.GET.get('check_in')
-        check_out = request.GET.get('check_out')
-        room_id = request.GET.get('room_id')
+            harga_kamar = Decimal(room.room_type.base_price) if room else Decimal(0)
+            durasi = 1
+            total_kamar = harga_kamar
+            pajak = Decimal(0)
+            total_harga = total_kamar
 
-        room_obj = Room.objects.filter(pk=room_id).first() if room_id else rooms.first()
+            if check_in and check_out:
+                try:
+                    check_in_date = datetime.strptime(check_in, "%Y-%m-%d").date()
+                    check_out_date = datetime.strptime(check_out, "%Y-%m-%d").date()
+                    if check_out_date > check_in_date:
+                        durasi = (check_out_date - check_in_date).days
+                        total_kamar = harga_kamar * durasi
+                        pajak = total_kamar * self.TAX_RATE
+                        total_harga = total_kamar + pajak
+                except (ValueError, TypeError):
+                    pass
 
-        harga_kamar = Decimal(room_obj.room_type.base_price) if room_obj else Decimal(0)
+            form = ReservationForm(
+                hotel_id=hotel_id,
+                initial={
+                    'room': room.id if room else None,
+                    'check_in': check_in,
+                    'check_out': check_out,
+                    'first_name': request.user.first_name or '',
+                    'last_name': request.user.last_name or '',
+                    'email': request.user.email or '',
+                    'phone': request.user.profile.phone if hasattr(request.user, 'profile') else ''
+                }
+            )
+
+            return render(request, self.form_template_name, {
+                'form': form,
+                'hotel': hotel,
+                'rooms': rooms,
+                'room_obj': room,
+                'harga_kamar': harga_kamar,
+                'durasi': durasi,
+                'total_kamar': total_kamar,
+                'pajak': pajak,
+                'total_harga': total_harga,
+            })
+        else:
+            # Tampilkan daftar reservasi
+            reservations = Reservation.objects.filter(
+                user=request.user,
+                status__in=['PENDING', 'PAID', 'CHECKED_IN']
+            ).order_by('-check_in')
+            return render(request, self.list_template_name, {
+                'reservations': reservations,
+            })
+
+    def post(self, request, hotel_id):
+        hotel = get_object_or_404(Hotel, pk=hotel_id)
+        rooms = Room.objects.filter(hotel=hotel, is_available=True).select_related('room_type')
+        form = ReservationForm(request.POST, hotel_id=hotel_id)
+
+        room_id = request.POST.get('room')
+        room = Room.objects.filter(pk=room_id).first() if room_id else None
+        harga_kamar = Decimal(room.room_type.base_price) if room else Decimal(0)
         durasi = 1
         total_kamar = harga_kamar
         pajak = Decimal(0)
         total_harga = total_kamar
 
-        if check_in and check_out:
-            try:
-                check_in_date = datetime.strptime(check_in, "%Y-%m-%d").date()
-                check_out_date = datetime.strptime(check_out, "%Y-%m-%d").date()
-                durasi = max((check_out_date - check_in_date).days, 1)
+        if form.is_valid():
+            check_in = form.cleaned_data['check_in']
+            check_out = form.cleaned_data['check_out']
+            if check_in and check_out and check_out > check_in:
+                durasi = (check_out - check_in).days
                 total_kamar = harga_kamar * durasi
                 pajak = total_kamar * self.TAX_RATE
                 total_harga = total_kamar + pajak
-            except:
-                pass
 
-        form = ReservationForm(
-            hotel_id=hotel_id,
-            initial={
-                'check_in': check_in,
-                'check_out': check_out,
-                'room': room_obj.id if room_obj else None
-            }
-        )
-
-        return render(request, self.template_name, {
-            'form': form,
-            'hotel': hotel,
-            'rooms': rooms,
-            'room_obj': room_obj,
-            'harga_kamar': harga_kamar,
-            'durasi': durasi,
-            'total_kamar': total_kamar,
-            'pajak': pajak,
-            'total_harga': total_harga,
-        })
-
-    def post(self, request, hotel_id=None):
-        form = ReservationForm(request.POST, hotel_id=hotel_id)
-        hotel = get_object_or_404(Hotel, pk=hotel_id)
-        rooms = Room.objects.filter(hotel=hotel, is_available=True)
-
-        room_id = request.POST.get("room")
-        room_obj = Room.objects.filter(pk=room_id).first()
-
-        harga_kamar = Decimal(room_obj.room_type.base_price) if room_obj else Decimal(0)
-        durasi = 1
-        total_kamar = Decimal(0)
-        pajak = Decimal(0)
-        total_harga = Decimal(0)
-
-        try:
-            check_in = datetime.strptime(request.POST.get("check_in"), "%Y-%m-%d").date()
-            check_out = datetime.strptime(request.POST.get("check_out"), "%Y-%m-%d").date()
-            durasi = max((check_out - check_in).days, 1)
-            total_kamar = harga_kamar * durasi
-            pajak = total_kamar * self.TAX_RATE
-            total_harga = total_kamar + pajak
-        except:
-            pass
-
-        if form.is_valid():
             reservation = form.save(commit=False)
             reservation.user = request.user
+            reservation.hotel = hotel
             reservation.total_price = total_harga
+            reservation.status = 'PENDING'
             reservation.save()
-            return redirect('payment', reservation_id=reservation.id)
+            messages.success(request, 'Reservasi berhasil dibuat! Silakan lakukan pembayaran.')
+            return redirect('payment', reservation_id=reservation.id)  # Redirect ke halaman pembayaran
 
-        return render(request, self.template_name, {
+        check_in_str = request.POST.get('check_in')
+        check_out_str = request.POST.get('check_out')
+        if check_in_str and check_out_str:
+            try:
+                check_in_date = datetime.strptime(check_in_str, "%Y-%m-%d").date()
+                check_out_date = datetime.strptime(check_out_str, "%Y-%m-%d").date()
+                if check_out_date > check_in_date:
+                    durasi = (check_out_date - check_in_date).days
+                    total_kamar = harga_kamar * durasi
+                    pajak = total_kamar * self.TAX_RATE
+                    total_harga = total_kamar + pajak
+            except (ValueError, TypeError):
+                pass
+
+        return render(request, self.form_template_name, {
             'form': form,
             'hotel': hotel,
             'rooms': rooms,
-            'room_obj': room_obj,
+            'room_obj': room,
             'harga_kamar': harga_kamar,
             'durasi': durasi,
             'total_kamar': total_kamar,
             'pajak': pajak,
             'total_harga': total_harga,
         })
-    
+
 # Pembayaran
 class PaymentView(AppLoginRequiredMixin, View):
     template_name = 'payment/payment.html'
-    login_url = reverse_lazy('login')
 
     def get(self, request, reservation_id):
         reservation = get_object_or_404(Reservation, pk=reservation_id, user=request.user)
         form = PaymentForm()
+        payment_details = {
+            'bank_transfer': [
+                {'bank': 'BCA', 'account_number': '1234567890', 'account_name': 'Hotel Djangoo'},
+                {'bank': 'Mandiri', 'account_number': '0987654321', 'account_name': 'Hotel Djangoo'},
+            ],
+            'e_wallet': [
+                {'provider': 'OVO', 'number': '081234567890'},
+                {'provider': 'DANA', 'number': '081987654321'},
+                {'provider': 'GoPay', 'number': '082345678901'},
+            ],
+        }
         return render(request, self.template_name, {
             'form': form,
-            'reservation': reservation
+            'reservation': reservation,
+            'payment_details': payment_details,
         })
 
     def post(self, request, reservation_id):
@@ -343,42 +354,70 @@ class PaymentView(AppLoginRequiredMixin, View):
         if form.is_valid():
             payment = form.save(commit=False)
             payment.reservation = reservation
-            payment.is_paid = True
-            payment.paid_at = timezone.now()
+            payment.is_paid = False
+            payment.paid_at = None
             payment.save()
-            reservation.status = 'PAID'
+            reservation.status = 'PENDING'
             reservation.save()
-            return redirect('reservation_history')
+            messages.success(request, 'Pembayaran berhasil! Tunggu Reservasi Anda dikonfirmasi.')
+            return redirect('reservation')  # Redirect ke daftar reservasi
+        payment_details = {
+            'bank_transfer': [
+                {'bank': 'BCA', 'account_number': '1234567890', 'account_name': 'Hotel Djangoo'},
+                {'bank': 'Mandiri', 'account_number': '0987654321', 'account_name': 'Hotel Djangoo'},
+            ],
+            'e_wallet': [
+                {'provider': 'OVO', 'number': '081234567890'},
+                {'provider': 'DANA', 'number': '081987654321'},
+                {'provider': 'GoPay', 'number': '082345678901'},
+            ],
+        }
         return render(request, self.template_name, {
             'form': form,
-            'reservation': reservation
+            'reservation': reservation,
+            'payment_details': payment_details,
+        })
+
+# Detail Reservasi
+class ReservationDetailView(AppLoginRequiredMixin, View):
+    template_name = 'reservasi/detail_reservasi.html'
+
+    def get(self, request, reservation_id):
+        reservation = get_object_or_404(Reservation, pk=reservation_id, user=request.user)
+        return render(request, self.template_name, {
+            'reservation': reservation,
         })
 
 # Pembatalan reservasi
 class CancelReservationView(AppLoginRequiredMixin, View):
-    login_url = reverse_lazy('login')
-
     def post(self, request, reservation_id):
         reservation = get_object_or_404(Reservation, pk=reservation_id, user=request.user)
         if reservation.status in ['PENDING', 'PAID']:
             reservation.status = 'CANCELLED'
             reservation.save()
+            messages.success(request, 'Reservasi berhasil dibatalkan.')
+        else:
+            messages.error(request, 'Reservasi tidak dapat dibatalkan.')
         return redirect('reservation_history')
 
 # Riwayat reservasi
 class ReservationHistoryView(AppLoginRequiredMixin, TemplateView):
     template_name = 'riwayat/riwayat_reservasi.html'
-    login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['reservations'] = Reservation.objects.filter(user=self.request.user)
+        today = date.today()
+        context['reservations'] = Reservation.objects.filter(
+            user=self.request.user,
+            status__in=['CHECKED_OUT', 'CANCELLED']
+        ).filter(
+            Q(status='CHECKED_OUT', check_out__lt=today) | Q(status='CANCELLED')
+        ).order_by('-check_out')
         return context
 
 # Ulasan
 class ReviewView(AppLoginRequiredMixin, View):
     template_name = 'review/review.html'
-    login_url = reverse_lazy('login')
 
     def get(self, request, reservation_id):
         reservation = get_object_or_404(Reservation, pk=reservation_id, user=request.user, status='CHECKED_OUT')

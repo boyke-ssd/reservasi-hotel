@@ -1,5 +1,5 @@
 {% extends 'layout/base.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}Beranda - Hotel Djangoo{% endblock %}
 
@@ -33,7 +33,7 @@
                         <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50">
                             <div class="border-t max-h-48 overflow-y-auto">
                                 {% for hotel in all_hotels %}
-                                    <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectDestination('{{ hotel.name }}')">
+                                    <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
                                         <div class="flex items-center gap-2">
                                             <span class="font-medium">{{ hotel.region }}</span>
                                         </div>
@@ -42,6 +42,7 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        <input type="hidden" name="destination_id" id="destinationInput">
                     </div>
 
                     <!-- Check-in -->
@@ -108,13 +109,13 @@
 
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <div class="text-sm text-gray-400 line-through">Rp {{ featured_hotel.room_types.first.base_price|add:10000 }}</div>
-                    <div class="text-2xl font-bold text-gray-800">Rp {{ featured_hotel.room_types.first.base_price }}</div>
+                    <div class="text-sm text-gray-400 line-through">Rp {{ featured_hotel.room_types.first.base_price|add:10000|intcomma }}</div>
+                    <div class="text-2xl font-bold text-gray-800">Rp {{ featured_hotel.room_types.first.base_price|intcomma }}</div>
                     <div class="flex items-center gap-1 text-xs text-green-600 font-medium">
                         <span>Kami Samakan Harga</span>
                     </div>
                 </div>
-                <a href="{% url 'reservation_with_hotel' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
+                <a href="{% url 'reservation_form' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
             </div>
         </div>
 
@@ -152,13 +153,13 @@
                             <img src="{{ first_image.image.url|default:'/static/images/vila.jpg' }}" alt="{{ hotel.name }}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
                         {% endwith %}
                     </div>
-                    <div class="p-6">
+                    <div class="p-6 text-gray-800">
                         <h3 class="text-xl font-bold text-gray-800 mb-2">{{ hotel.name }}</h3>
                         <p class="text-gray-600 mb-4">{{ hotel.location|default:'Nikmati pengalaman menginap yang luar biasa di hotel kami.' }}</p>
                         {% if user.is_authenticated %}
-                            <a href="{% url 'reservation_with_hotel' hotel_id=hotel.id %}" class="btn-hover bg-teal-medium text-mint-light px-6 py-3 rounded-lg hover-mint-bg">Booking Sekarang</a>
+                            <a href="{% url 'reservation_form' hotel_id=hotel.id %}" class="btn-hover bg-teal-medium text-gray px-6 py-3 rounded-lg hover-mint-bg">Booking Sekarang</a>
                         {% else %}
-                            <a href="{% url 'login' %}?next={% url 'reservation_with_hotel' hotel_id=hotel.id %}" class="btn-hover bg-teal-medium text-mint-light px-6 py-3 rounded-lg hover-mint-bg">Booking Sekarang</a>
+                            <a href="{% url 'login' %}?next={% url 'reservation_form' hotel_id=hotel.id %}" class="btn-hover bg-teal-medium text-navy-dark px-6 py-3 rounded-lg hover-mint-bg">Booking Sekarang</a>
                         {% endif %}
                     </div>
                 </div>
@@ -175,9 +176,9 @@ function toggleDestinationDropdown() {
     closeOtherDropdowns('destinationDropdown');
 }
 
-function selectDestination(destination) {
+function selectDestination(destination, hotelId) {
     document.getElementById('destinationValue').textContent = destination;
-    document.getElementById('destinationInput').value = destination; // Pastikan ada input tersembunyi
+    document.getElementById('destinationInput').value = hotelId;
     document.getElementById('destinationDropdown').classList.add('hidden');
 }
 

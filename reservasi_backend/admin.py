@@ -175,10 +175,15 @@ class ReservationAdmin(admin.ModelAdmin):
 # ====================
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['reservation', 'method', 'is_paid', 'paid_at']
-    list_filter = ['is_paid', 'method', 'paid_at']
-    search_fields = ['reservation__user__username', 'reservation__room__number', 'reservation__room__hotel__name']
-    readonly_fields = ['paid_at']
+    list_display = ['reservation', 'method', 'is_paid', 'paid_at', 'proof']
+    actions = ['mark_as_paid']
+
+    def mark_as_paid(self, request, queryset):
+        queryset.update(is_paid=True, paid_at=timezone.now())
+        for payment in queryset:
+            payment.reservation.status = 'PAID'
+            payment.reservation.save()
+    mark_as_paid.short_description = "Tandai sebagai Lunas"
 
 # ====================
 # Review Admin

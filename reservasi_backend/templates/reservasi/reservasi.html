@@ -2,15 +2,14 @@
 {% load static %}
 {% load humanize %}
 
-
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-6">
   <!-- Header -->
   <div class="bg-blue-600 text-white rounded-xl p-4 mb-6">
-    <h2 class="text-lg font-semibold">Pilih &gt; Detail &gt; <span class="font-bold">Konfirmasi</span></h2>
+    <h2 class="text-lg font-semibold">Pilih > Detail > <span class="font-bold">Konfirmasi</span></h2>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-navy-dark">
     <!-- LEFT FORM -->
     <div class="lg:col-span-2 space-y-6">
       <!-- Info Tamu -->
@@ -19,138 +18,88 @@
         <form method="POST">
           {% csrf_token %}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" name="first_name" placeholder="Nama depan & tengah" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="last_name" placeholder="Nama belakang" required class="border px-3 py-2 rounded w-full">
-            <input type="email" name="email" placeholder="Email" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="phone" placeholder="Nomor telepon (+62)" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="first_name" placeholder="Nama depan & tengah" value="{{ form.first_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="last_name" placeholder="Nama belakang" value="{{ form.last_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="phone" placeholder="Nomor telepon (+62)" value="{{ form.phone.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
           </div>
+          <!-- Check-in, Check-out, dan Room dipindahkan ke dalam form -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Check-in</label>
+              <input type="date" name="check_in" value="{{ form.check_in.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Check-out</label>
+              <input type="date" name="check_out" value="{{ form.check_out.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="text-sm font-semibold text-gray-600">Pilih Kamar</label>
+            <select name="room" required class="border px-3 py-2 rounded w-full">
+              <option value="">-- Pilih Kamar --</option>
+              {% for r in rooms %}
+              <option value="{{ r.id }}" {% if r.id == form.room.value|default_if_none:'' %}selected{% endif %}>
+                {{ r.room_type.name }} (No. {{ r.number }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          {% if form.errors %}
+          <div class="bg-red-100 text-red-700 p-4 rounded mb-4 mt-2">
+            <p class="font-bold">Terjadi kesalahan:</p>
+            <ul class="list-disc list-inside text-sm">
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
       </div>
-
-      {% if form.errors %}
-      <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
-        <p class="font-bold">Terjadi kesalahan:</p>
-        <ul class="list-disc list-inside text-sm">
-            {% for field, errors in form.errors.items %}
-            <li>{{ field }}: {{ errors|striptags }}</li>
-            {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
 
       <!-- Permintaan Khusus -->
       <div class="bg-white p-6 rounded-xl shadow">
         <h3 class="text-lg font-bold mb-4">Permintaan Khusus <span class="text-sm text-gray-400">(Opsional)</span></h3>
         <div class="space-y-3">
-          <div class="flex items-center gap-3">
-            <label><input type="radio" name="bed_type" value="double"> 1 double bed</label>
-            <label><input type="radio" name="bed_type" value="twin"> 2 single bed</label>
-          </div>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" name="non_smoking"> <span>Utamakan kamar bebas rokok</span>
-          </label>
-          <textarea name="special_request" rows="3" class="w-full border rounded px-3 py-2" placeholder="Permintaan lain (opsional)"></textarea>
-        </div>
-      </div>
-      
-      <!-- METODE PEMBAYARAN -->
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-lg font-bold mb-4">Metode Pembayaran</h3>
-        <div class="flex flex-col gap-2">
-          <label><input type="radio" name="payment_method" value="credit" checked onclick="togglePaymentMethod()"> Kartu Kredit/Debit</label>
-          <label><input type="radio" name="payment_method" value="ewallet" onclick="togglePaymentMethod()"> Dompet Digital (OVO, DANA, GoPay)</label>
-        </div>
-
-        <!-- Form Kartu Kredit -->
-        <div id="credit-form" class="mt-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input type="text" name="card_number" placeholder="Nomor kartu bank" class="border px-3 py-2 rounded w-full">
-            <input type="text" name="card_name" placeholder="Nama pemegang kartu" class="border px-3 py-2 rounded w-full">
-            <input type="month" name="expiry" class="border px-3 py-2 rounded w-full">
-            <input type="text" name="cvv" placeholder="CVV/CVC" class="border px-3 py-2 rounded w-full">
-          </div>
-        </div>
-
-        <!-- Form E-Wallet -->
-        <div id="ewallet-form" class="mt-4 hidden">
-          <label class="block mb-2 text-sm font-medium">Nomor Dompet Digital</label>
-          <input type="text" name="ewallet_number" placeholder="08xxxxxxx (OVO/DANA/GoPay)" class="border px-3 py-2 rounded w-full">
+          <textarea name="special_request" rows="3" class="w-full border rounded px-3 py-2" placeholder="Permintaan lain (opsional)">{{ form.special_request.value|default_if_none:'' }}</textarea>
         </div>
       </div>
 
       <!-- Submit -->
       <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-        Langkah Terakhir
+        Lanjut ke Pembayaran
       </button>
       </form>
     </div>
 
-<!-- RIGHT SIDEBAR -->
-<div class="bg-white p-6 rounded-xl shadow h-fit">
-    <div class="flex items-center gap-4 mb-4">
-      <img src="{{ hotel.gallery.first.image.url }}" class="w-20 h-20 object-cover rounded" alt="">
-      <div>
-        <h4 class="font-bold">{{ hotel.name }}</h4>
-        <p class="text-sm text-gray-500">{{ hotel.location }}</p>
+    <!-- RIGHT SIDEBAR -->
+    <div class="bg-white p-6 rounded-xl shadow h-fit">
+      <div class="flex items-center gap-4 mb-4">
+        {% if hotel.gallery.first %}
+        <img src="{{ hotel.gallery.first.image.url }}" class="w-20 h-20 object-cover rounded" alt="{{ hotel.name }}">
+        {% else %}
+        <img src="{% static 'images/hotel-placeholder.jpg' %}" class="w-20 h-20 object-cover rounded" alt="{{ hotel.name }}">
+        {% endif %}
+        <div>
+          <h4 class="font-bold">{{ hotel.name }}</h4>
+          <p class="text-sm text-gray-500">{{ hotel.location }}</p>
+        </div>
       </div>
+
+      <hr class="my-4">
+
+      <!-- Ringkasan Harga -->
+      <p>Durasi: <strong>{{ durasi }} malam</strong></p>
+      <p>Harga per malam: <strong>Rp {{ harga_kamar|intcomma }}</strong></p>
+      <p>Total kamar: <strong>Rp {{ total_kamar|intcomma }}</strong></p>
+      <p>Pajak & biaya lainnya (10%): <strong>Rp {{ pajak|intcomma }}</strong></p>
+      <p class="font-bold text-blue-600 mt-2">Total: Rp {{ total_harga|intcomma }}</p>
     </div>
-  
-    <hr class="my-4">
-  
-    <!-- Check-in -->
-    <div class="mb-4">
-      <label class="text-sm font-semibold text-gray-600">Check-in</label>
-      <input type="date" name="check_in" value="{{ form.check_in.value|default_if_none:'' }}" readonly class="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed">
-      <input type="hidden" name="check_in" value="{{ form.check_in.value|default_if_none:'' }}">
-    </div>
-  
-    <!-- Check-out -->
-    <div class="mb-4">
-      <label class="text-sm font-semibold text-gray-600">Check-out</label>
-      <input type="date" name="check_out" value="{{ form.check_out.value|default_if_none:'' }}" readonly class="text-sm font-medium text-gray-800 border border-gray-300 rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed">
-      <input type="hidden" name="check_out" value="{{ form.check_out.value|default_if_none:'' }}">
-    </div>
-  
-    <!-- Pilih Kamar -->
-    <div class="mb-4">
-      <label class="text-sm font-semibold text-gray-600">Pilih Kamar</label>
-      <select name="room" disabled class="text-sm border border-gray-300 rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed">
-        <option value="">-- Pilih Kamar --</option>
-        {% for r in rooms %}
-          <option value="{{ r.id }}" {% if r.id == room_obj.id %}selected{% endif %}>
-            {{ r.room_type.name }} (No. {{ r.number }})
-          </option>
-        {% endfor %}
-      </select>
-      <input type="hidden" name="room" value="{{ room_obj.id }}">
-    </div>
-  
-    <hr class="my-4">
-  
-    <!-- Harga -->
-    <p>Durasi: <strong>{{ durasi }} malam</strong></p>
-    <p>Harga per malam: <strong>Rp {{ harga_kamar|intcomma }}</strong></p>
-    <p>Total kamar: <strong>Rp {{ total_kamar|intcomma }}</strong></p>
-    <p>Pajak & biaya lainnya (10%): <strong>Rp {{ pajak|intcomma }}</strong></p>
-    <p class="font-bold text-blue-600 mt-2">Total: Rp {{ total_harga|intcomma }}</p>
-  </div>
   </div>
 </div>
-
-<script>
-  function togglePaymentMethod() {
-    const selected = document.querySelector('input[name="payment_method"]:checked').value;
-    const creditForm = document.getElementById('credit-form');
-    const ewalletForm = document.getElementById('ewallet-form');
-
-    if (selected === 'credit') {
-      creditForm.classList.remove('hidden');
-      ewalletForm.classList.add('hidden');
-    } else {
-      creditForm.classList.add('hidden');
-      ewalletForm.classList.remove('hidden');
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', togglePaymentMethod);
-</script>
 {% endblock %}

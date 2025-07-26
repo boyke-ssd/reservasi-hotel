@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% load static %}
 
 {% block title %}Halaman Beranda Coyy{% endblock %}
 
@@ -41,9 +42,13 @@
         <!-- Anggota 1 -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
           <div class="flex items-center space-x-4 mb-2">
-            <div class="w-14 h-14 bg-teal-dark text-white flex items-center justify-center text-xl font-bold rounded-full">A1</div>
+            <!-- Foto Profil -->
+            <div class="w-20 h-20 flex-shrink-0">
+              <img src="{% static 'images/anggota/boyke.jpg' %}" alt="Ananda Kurniawan" class="w-full h-full object-cover rounded-full border-2 border-teal-medium shadow">
+            </div>
             <div>
-              <h3 class="text-lg font-semibold">Andi Prasetyo</h3>
+              <h3 class="text-lg font-semibold">Boyke Salehu</h3>
+              <p class="text-sm text-gray-500">2359201024</p>
               <p class="text-sm text-gray-500">Backend Developer</p>
             </div>
           </div>
@@ -54,21 +59,30 @@
           </div>
         </div>
 
-        <!-- Anggota 2 -->
-        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
-          <div class="flex items-center space-x-4 mb-2">
-            <div class="w-14 h-14 bg-teal-dark text-white flex items-center justify-center text-xl font-bold rounded-full">B2</div>
+       <!-- Anggota 2 -->
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1 w-full max-w-md mx-auto">
+          <div class="flex items-center space-x-4">
+            <!-- Foto Profil -->
+            <div class="w-20 h-20 flex-shrink-0">
+              <img src="{% static 'images/anggota/boyke.jpg' %}" alt="Ananda Kurniawan" class="w-full h-full object-cover rounded-full border-2 border-teal-medium shadow">
+            </div>
+
+            <!-- Info Anggota -->
             <div>
-              <h3 class="text-lg font-semibold">Bunga Rahmawati</h3>
+              <h3 class="text-lg font-semibold text-navy-dark">Ananda Kurniawan</h3>
+              <p class="text-sm text-gray-500">2359201006</p>
               <p class="text-sm text-gray-500">Frontend Designer</p>
             </div>
           </div>
-          <div class="flex space-x-4 mt-2 text-gray-500 text-sm">
-            <a href="https://wa.me/6289876543210" target="_blank">WA</a>
-            <a href="https://instagram.com/bunga_ui" target="_blank">Instagram</a>
-            <a href="https://facebook.com/bunga.rahmawati" target="_blank">Facebook</a>
+
+          <!-- Sosial Media -->
+          <div class="flex space-x-4 mt-4 text-gray-500 text-sm">
+            <a href="https://wa.me/6289876543210" target="_blank" class="hover:text-teal-600">WA</a>
+            <a href="https://instagram.com/bunga_ui" target="_blank" class="hover:text-teal-600">Instagram</a>
+            <a href="https://facebook.com/bunga.rahmawati" target="_blank" class="hover:text-teal-600">Facebook</a>
           </div>
         </div>
+
       </div>
     </section>
 
