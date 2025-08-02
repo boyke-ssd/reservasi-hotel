@@ -3,6 +3,29 @@
 {% load humanize %}
 
 {% block content %}
+<style>
+  /* Custom styling for hotel cards */
+  .hotel-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hotel-card:hover {
+    transform: translateY(-8px);
+  }
+  .region-badge {
+    transform: translateY(8px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .hotel-card:hover .region-badge {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
 <div class="container mx-auto px-4 max-w-6xl py-6">
   <div class="relative z-10 flex justify-center items-center">
     <div class="container mx-auto px-4 max-w-6xl">
@@ -40,7 +63,7 @@
             </div>
           </div>
           <!-- Tombol Cari -->
-          <button type="submit" class="bg-[--teal-medium] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[--teal-dark] transition-colors flex items-center gap-2 min-w-[120px] justify-center h-14" style="background-color: var(--teal-medium);">
+          <button type="submit" class="bg-[--teal-medium] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[--teal-dark] transition-all duration-300 flex items-center gap-2 min-w-[120px] justify-center h-14 hover:shadow-lg hover:-translate-y-1" style="background-color: var(--teal-medium);">
             <span>Cari</span>
           </button>
         </div>
@@ -48,17 +71,17 @@
         <div class="mt-4 flex items-center gap-3 ml-0 lg:ml-0">
           <span class="text-sm font-medium text-[--navy-dark]" style="color: var(--navy-dark);">Rating Bintang:</span>
           <div class="flex gap-2">
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="2" style="border-color: var(--teal-medium);">
-              2 ★
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="2" style="border-color: var(--teal-medium);">
+              2 <span class="text-yellow-400">★</span>
             </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="3" style="border-color: var(--teal-medium);">
-              3 ★
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="3" style="border-color: var(--teal-medium);">
+              3 <span class="text-yellow-400">★</span>
             </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="4" style="border-color: var(--teal-medium);">
-              4 ★
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="4" style="border-color: var(--teal-medium);">
+              4 <span class="text-yellow-400">★</span>
             </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-colors star-filter" data-rating="5" style="border-color: var(--teal-medium);">
-              5 ★
+            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="5" style="border-color: var(--teal-medium);">
+              5 <span class="text-yellow-400">★</span>
             </button>
           </div>
         </div>
@@ -69,13 +92,13 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
     {% for h in hotel_data %}
     {% if h.obj.id %}
-    <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
-      <div class="bg-white shadow rounded-2xl flex flex-col hover:-translate-y-1 transform transition h-[400px]">
-        <div class="relative h-60">
+    <a href="{% url 'hotel_detail' h.obj.id %}" class="block rounded-2xl overflow-hidden group">
+      <div class="hotel-card bg-white shadow-md rounded-2xl flex flex-col h-[400px] hover:shadow-2xl hover:shadow-[--teal-light]/40">
+        <div class="relative h-60 overflow-hidden">
           {% if h.image %}
-            <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover">
+            <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
           {% else %}
-            <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover" alt="No Image">
+            <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="No Image">
           {% endif %}
           <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1" style="color: var(--navy-dark);">
             {% with rating=h.obj.average_rating|floatformat:1 %}
@@ -83,36 +106,42 @@
               <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} ulasan</span>
             {% endwith %}
           </div>
+          
+          <!-- Region badge yang muncul di pojok kanan bawah saat hover dengan efek glassmorphism -->
+          <div class="region-badge absolute bottom-2 right-2 bg-white/40 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-medium shadow-md border border-white/50">
+            <span class="text-white drop-shadow-sm">{{ h.obj.region }}</span>
+          </div>
         </div>
         <div class="p-4 flex flex-col flex-grow">
           <div class="flex flex-col gap-2 mb-2">
             <div class="min-h-[3rem]">
-              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2">{{ h.obj.name }}</h3>
+              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
               <div class="flex items-center">
-                {% for i in "12345" %}
-                  {% if forloop.counter <= h.obj.star_rating %}
+                {% for i in "12345"|slice:":h.obj.star_rating" %}
+                  {% if forloop.counter0 < h.obj.star_rating %}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
                     </svg>
                   {% else %}
-                    <!-- Bintang tidak aktif (warna abu-abu atau mint-light) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
                     </svg>
                   {% endif %}
                 {% endfor %}
-
               </div>
             </div>
           </div>
           <p class="text-sm text-[--teal-dark] truncate" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
-          <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
-            {% if h.harga_termurah %}
-             Rp {{ h.harga_termurah|intcomma }}
-            {% else %}
-              Tidak tersedia
-            {% endif %}
-          </p>
+          <div class="mt-auto">
+            <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
+              {% if h.harga_termurah %}
+                <span class="text-xs text-gray-500 line-through">Rp {{ h.harga_termurah|add:20000|intcomma }}</span>
+                <span class="block">Rp {{ h.harga_termurah|intcomma }}</span>
+              {% else %}
+                Tidak tersedia
+              {% endif %}
+            </p>
+          </div>
         </div>
       </div>
     </a>

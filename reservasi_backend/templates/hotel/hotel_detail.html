@@ -1,28 +1,27 @@
 {% extends 'layout/base.html' %}
-{% load static humanize %}
-
-{% block title %}{{ hotel.name }} - Hotel Djangoo{% endblock %}
+{% load static %}
+{% load humanize %}
 
 {% block content %}
 <!-- Hotel Details Section -->
 <section class="bg-white py-6">
     <div class="container mx-auto px-4">
-        <nav class="flex space-x-8 border-b border-gray-200 mb-6" id="nav-tabs">
-            <a href="#summary" class="nav-tab {% if request.GET.tab == 'summary' or not request.GET.tab %}border-b-2 border-teal-medium{% endif %} pb-3 text-teal-medium font-semibold text-sm" onclick="smoothScroll('#summary')">Ringkasan</a>
-            <a href="#rooms" class="nav-tab {% if request.GET.tab == 'rooms' %}border-b-2 border-teal-medium{% endif %} pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" onclick="smoothScroll('#rooms')">Kamar</a>
-            <a href="#reviews" class="nav-tab {% if request.GET.tab == 'reviews' %}border-b-2 border-teal-medium{% endif %} pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" onclick="smoothScroll('#reviews')">Ulasan Tamu</a>
-            <a href="#facilities" class="nav-tab {% if request.GET.tab == 'facilities' %}border-b-2 border-teal-medium{% endif %} pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" onclick="smoothScroll('#facilities')">Layanan & Fasilitas</a>
-            <a href="#policies" class="nav-tab {% if request.GET.tab == 'policies' %}border-b-2 border-teal-medium{% endif %} pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" onclick="smoothScroll('#policies')">Kebijakan</a>
-            <a href="#location" class="nav-tab {% if request.GET.tab == 'location' %}border-b-2 border-teal-medium{% endif %} pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" onclick="smoothScroll('#location')">Lokasi</a>
+        <nav class="flex space-x-8 border-b border-gray-200 mb-6">
+            <button aria-current="page" class="nav-tab border-b-2 border-teal-medium pb-3 text-teal-medium font-semibold text-sm" type="button">Ringkasan</button>
+            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Kamar</button>
+            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Ulasan Tamu</button>
+            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Layanan & Fasilitas</button>
+            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Kebijakan</button>
+            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Lokasi</button>
         </nav>
 
         <div class="flex flex-col lg:flex-row justify-between items-start gap-6">
             <div class="flex-1">
                 <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2 brand-hover">
-                    <span>{{ hotel.name }}</span>
+                    <span>{{ featured_hotel.name }}</span>
                     <div class="flex items-center text-yellow-400">
                         {% for i in "12345" %}
-                            {% if forloop.counter <= hotel.average_rating|floatformat:0|add:0 %}
+                            {% if forloop.counter <= featured_hotel.average_rating|floatformat:0|add:0 %}
                                 <i class="fas fa-star text-sm"></i>
                             {% else %}
                                 <i class="far fa-star text-sm"></i>
@@ -31,20 +30,20 @@
                     </div>
                 </h1>
                 <p class="text-gray-600 text-sm mb-4 flex items-center gap-2">
-                    <span>{{ hotel.location }}</span>
-                    <a class="link-hover text-teal-medium font-medium hover:underline" href="https://www.google.com/maps/search/?api=1&query={{ hotel.location|urlencode }}" target="_blank">Lihat Peta</a>
+                    <span>{{ featured_hotel.location }}</span>
+                    <a class="link-hover text-teal-medium font-medium hover:underline" href="https://www.google.com/maps/search/?api=1&query={{ featured_hotel.location|urlencode }}" target="_blank">Lihat Peta</a>
                 </p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <div class="text-sm text-gray-400 line-through">Rp {{ harga_termurah|add:10000|intcomma }}</div>
-                    <div class="text-2xl font-bold text-gray-800">Rp {{ harga_termurah|intcomma }}</div>
+                    <div class="text-sm text-gray-400 line-through">Rp {{ featured_hotel.room_types.first.base_price|add:10000 }}</div>
+                    <div class="text-2xl font-bold text-gray-800">Rp {{ featured_hotel.room_types.first.base_price }}</div>
                     <div class="flex items-center gap-1 text-xs text-green-600 font-medium">
                         <span>Kami Samakan Harga</span>
                     </div>
                 </div>
-                <a href="{% url 'reservation_form' hotel_id=hotel.id %}?check_in={{ check_in }}&check_out={{ check_out }}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
+                <a href="{% url 'reservation_with_hotel' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
             </div>
         </div>
 
@@ -69,109 +68,4 @@
         </div>
     </div>
 </section>
-
-<!-- Tab Content Sections -->
-<section id="summary" class="py-6">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan</h2>
-        <p class="text-gray-600">{{ hotel.description|default:"Deskripsi hotel belum tersedia." }}</p>
-    </div>
-</section>
-
-<section id="rooms" class="py-6 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Kamar Tersedia</h2>
-        {% if rooms %}
-            {% for room in rooms %}
-                <div class="mt-4 p-4 border rounded-lg bg-white">
-                    <h3 class="text-lg font-medium">{{ room.room_type.name }}</h3>
-                    <p class="text-gray-600">Harga: Rp {{ room.room_type.base_price|intcomma }}</p>
-                    <p class="text-gray-600">Kapasitas: {{ room.room_type.capacity }} orang</p>
-                    <a href="{% url 'reservation_form' hotel_id=hotel.id %}?room_id={{ room.id }}&check_in={{ check_in }}&check_out={{ check_out }}" class="mt-2 inline-block bg-teal-medium text-white px-4 py-2 rounded-md hover:bg-teal-dark transition-colors">
-                        Pesan Kamar Ini
-                    </a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-gray-600 mt-2">Tidak ada kamar tersedia saat ini.</p>
-        {% endif %}
-    </div>
-</section>
-
-<section id="reviews" class="py-6">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Ulasan Tamu</h2>
-        {% if reviews %}
-            {% for review in reviews %}
-                <div class="mt-4 p-4 border rounded-lg bg-white">
-                    <p class="text-gray-600">{{ review.comment|default:"Tanpa komentar" }}</p>
-                    <p class="text-sm text-gray-500">Rating: {{ review.rating }}/5</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-gray-600 mt-2">Belum ada ulasan untuk hotel ini.</p>
-        {% endif %}
-    </div>
-</section>
-
-<section id="facilities" class="py-6 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Layanan & Fasilitas</h2>
-        {% if facilities %}
-            <ul class="list-disc list-inside mt-2 text-gray-600">
-                {% for facility in facilities %}
-                    <li>{{ facility.name }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="text-gray-600 mt-2">Tidak ada fasilitas yang tercatat.</p>
-        {% endif %}
-    </div>
-</section>
-
-<section id="policies" class="py-6">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Kebijakan Hotel</h2>
-        <p class="text-gray-600 mt-2">{{ hotel.policies|default:"Kebijakan hotel belum tersedia." }}</p>
-    </div>
-</section>
-
-<section id="location" class="py-6 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Lokasi Hotel</h2>
-        <p class="text-gray-600 mt-2">{{ hotel.location }}</p>
-        <a class="link-hover text-teal-medium font-medium hover:underline mt-2 inline-block" href="https://www.google.com/maps/search/?api=1&query={{ hotel.location|urlencode }}" target="_blank">Lihat di Google Maps</a>
-    </div>
-</section>
-
-<script>
-    function smoothScroll(target) {
-        document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Highlight active tab based on URL parameter or scroll position
-    document.addEventListener('DOMContentLoaded', () => {
-        const tabs = document.querySelectorAll('.nav-tab');
-        const hash = window.location.hash || '#summary';
-        const activeTab = document.querySelector(`.nav-tab[href="${hash}"]`) || document.querySelector('.nav-tab[href="#summary"]');
-
-        tabs.forEach(tab => {
-            tab.classList.remove('border-teal-medium', 'text-teal-medium', 'font-semibold');
-            tab.classList.add('text-gray-600', 'font-medium');
-        });
-        activeTab.classList.add('border-b-2', 'border-teal-medium', 'text-teal-medium', 'font-semibold');
-
-        // Update active tab on scroll
-        window.addEventListener('scroll', () => {
-            const scrollPosition = window.scrollY + 100; // Offset for nav height
-            tabs.forEach(tab => {
-                const target = document.querySelector(tab.getAttribute('href'));
-                if (target && target.offsetTop <= scrollPosition && target.offsetTop + target.offsetHeight > scrollPosition) {
-                    tabs.forEach(t => t.classList.remove('border-teal-medium', 'text-teal-medium', 'font-semibold'));
-                    tab.classList.add('border-b-2', 'border-teal-medium', 'text-teal-medium', 'font-semibold');
-                }
-            });
-        });
-    });
-</script>
 {% endblock %}

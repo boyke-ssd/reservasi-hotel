@@ -31,6 +31,13 @@ class HomeView(TemplateView):
         context['featured_hotel'] = Hotel.objects.first()
         context['gallery'] = HotelGallery.objects.filter(hotel=context['featured_hotel'])[:6] if context['featured_hotel'] else []
         context['all_hotels'] = Hotel.objects.all()
+        
+        # Add unique regions for hotel region buttons
+        regions = []
+        for choice in Hotel._meta.get_field('region').choices:
+            regions.append({'name': choice[0]})
+        context['regions'] = regions
+        
         if context['featured_hotel'] and not context['featured_hotel'].location:
             context['featured_hotel'].location = "Lokasi tidak tersedia"
         return context
@@ -126,6 +133,7 @@ class HotelSearchView(View):
     def get(self, request):
         hotels = Hotel.objects.all().prefetch_related('room_types', 'gallery')
         destination_id = request.GET.get('destination_id')
+        region_name = request.GET.get('region')
         star_ratings = request.GET.getlist('star_rating')
 
         hotel_data = []
@@ -134,6 +142,8 @@ class HotelSearchView(View):
             hotel = Hotel.objects.filter(id=destination_id).first()
             if hotel and hotel.region:
                 hotels = hotels.filter(region=hotel.region)
+        elif region_name:
+            hotels = hotels.filter(region__name=region_name)
 
         if star_ratings:
             try:

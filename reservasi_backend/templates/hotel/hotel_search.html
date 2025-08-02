@@ -3,10 +3,11 @@
 {% load humanize %}
 
 {% block content %}
-<div class="container mx-auto px-4 max-w-7xl py-6">
-  <!-- Pencarian Sebelumnya (Di Atas) -->
-  <div class="mb-6">
-    <form method="GET" action="" aria-label="Hotel update form" class="bg-white rounded-lg shadow-xl p-6">
+<div class="relative">
+  <!-- Sticky Search Form -->
+  <div class="sticky top-0 z-50 bg-[--mint-light] py-4 transition-all duration-300 shadow-md" id="stickySearch">
+    <div class="container mx-auto px-4 max-w-7xl">
+      <form method="GET" action="" aria-label="Hotel update form" class="bg-white rounded-lg shadow-xl p-6">
       <div class="flex flex-col lg:flex-row gap-4 items-stretch">
         <!-- Destination (Region) - Bisa Diubah -->
         <div class="flex-1 min-w-[200px] relative">
@@ -57,7 +58,7 @@
   <!-- Layout Dua Kolom dengan Fixed Sidebar -->
   <div class="flex flex-col lg:flex-row gap-6 min-h-screen">
     <!-- Filter Section (Kiri) - Fixed Sidebar -->
-    <div class="w-[280px] bg-white rounded-lg shadow-md p-4 top-6 h-fit">
+    <div class="w-[280px] bg-white rounded-lg shadow-md p-4 sticky top-6 h-fit">
       <h2 class="text-lg font-semibold text-[--teal-dark] mb-4 border-b pb-2" style="color: var(--teal-dark);">Filter</h2>
       <div class="space-y-4">
         <!-- Lokasi (Read-Only) -->
@@ -107,10 +108,9 @@
       <div class="flex flex-col gap-4">
         {% for h in hotel_data %}
         {% if h.obj.id %}
-        <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition overflow-hidden">
-          <div class="bg-white shadow rounded-lg flex hover:shadow-xl transition duration-300">
-            <!-- Image Section -->
-            <div class="relative w-64 h-48">
+        <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
+          <div class="bg-white shadow rounded-2xl flex flex-col hover:-translate-y-1 transform transition w-full h-[400px]">
+            <div class="relative w-full h-60">
               {% if h.image %}
                 <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover">
               {% else %}
@@ -119,52 +119,37 @@
               <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1" style="color: var(--navy-dark);">
                 {% with rating=h.obj.average_rating|floatformat:1 %}
                   <span class="text-sm font-bold text-[--navy-dark]" style="color: var(--navy-dark);">{{ rating }}/5</span>
-                  <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} ulasan</span>
+                  <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} reviews</span>
                 {% endwith %}
               </div>
             </div>
-            <!-- Content Section -->
-            <div class="flex-1 p-4">
-              <div class="flex flex-col h-full justify-between">
-                <!-- Hotel Info -->
-                <div>
-                  <h3 class="font-semibold text-lg text-[--navy-dark] mb-1" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <div class="flex">
-                      {% for i in "12345" %}
-                        {% if forloop.counter <= h.obj.star_rating %}
-                          <!-- Bintang aktif -->
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                          </svg>
-                        {% else %}
-                          <!-- Bintang tidak aktif -->
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                          </svg>
-                        {% endif %}
-                      {% endfor %}
-                    </div>
-                  </div>
-                  <p class="text-sm text-[--teal-dark] mb-4" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
-                </div>
-                
-                <!-- Price Section -->
-                <div class="flex justify-between items-end">
-                  <div class="text-sm text-[--teal-dark]" style="color: var(--teal-dark);">
-                    Per malam
-                  </div>
-                  <div class="text-right">
-                    <p class="text-xl font-bold text-[--teal-medium]" style="color: var(--teal-medium);">
-                      {% if h.harga_termurah %}
-                       Rp {{ h.harga_termurah|intcomma }}
+            <div class="p-4 flex flex-col flex-grow">
+              <div class="flex flex-col gap-2 mb-2">
+                <div class="min-h-[3rem]">
+                  <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
+                  <div class="flex items-center">
+                    {% for i in "12345"|slice:":h.obj.star_rating" %}
+                      {% if forloop.counter0 < h.obj.star_rating %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium]" style="color: var(--teal-medium);" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                        </svg>
                       {% else %}
-                        Tidak tersedia
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--mint-light]" style="color: var(--mint-light);" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                        </svg>
                       {% endif %}
-                    </p>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
+              <p class="text-sm text-[--teal-dark] truncate" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
+              <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
+                {% if h.harga_termurah %}
+                 Rp {{ h.harga_termurah|intcomma }}
+                {% else %}
+                  Tidak tersedia
+                {% endif %}
+              </p>
             </div>
           </div>
         </a>
