@@ -18,10 +18,32 @@
         <form method="POST">
           {% csrf_token %}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" name="first_name" placeholder="Nama depan & tengah" value="{{ form.initial.first_name }}" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="last_name" placeholder="Nama belakang" value="{{ form.initial.last_name }}" required class="border px-3 py-2 rounded w-full">
-            <input type="email" name="email" placeholder="Email" value="{{ form.initial.email }}" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="phone_number" placeholder="Nomor telepon (+62)" value="{{ form.initial.phone_number }}" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="first_name" placeholder="Nama depan & tengah" value="{{ form.first_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="last_name" placeholder="Nama belakang" value="{{ form.last_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            <input type="text" name="phone" placeholder="Nomor telepon (+62)" value="{{ form.phone.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+          </div>
+          <!-- Check-in, Check-out, dan Room dipindahkan ke dalam form -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Check-in</label>
+              <input type="date" name="check_in" value="{{ form.check_in.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Check-out</label>
+              <input type="date" name="check_out" value="{{ form.check_out.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="text-sm font-semibold text-gray-600">Pilih Kamar</label>
+            <select name="room" required class="border px-3 py-2 rounded w-full">
+              <option value="">-- Pilih Kamar --</option>
+              {% for r in rooms %}
+              <option value="{{ r.id }}" {% if r.id == form.room.value|default_if_none:'' %}selected{% endif %}>
+                {{ r.room_type.name }} (No. {{ r.number }})
+              </option>
+              {% endfor %}
+            </select>
           </div>
           {% if form.errors %}
           <div class="bg-red-100 text-red-700 p-4 rounded mt-4">
@@ -105,6 +127,39 @@
         Langkah Terakhir
       </button>
       </form>
+      <script>
+        let isSubmitting = false;
+
+        // Deteksi kalau user klik submit
+        document.querySelector('form').addEventListener('submit', () => {
+          isSubmitting = true;
+        });
+
+        function updateURL() {
+          if (isSubmitting) return; // Jangan update URL kalau sedang submit
+
+          const form = document.querySelector('form');
+          const roomId = form.querySelector('select[name="room"]').value;
+          const checkIn = form.querySelector('input[name="check_in"]').value;
+          const checkOut = form.querySelector('input[name="check_out"]').value;
+
+          const params = new URLSearchParams();
+          if (roomId) params.set('room_id', roomId);
+          if (checkIn) params.set('check_in', checkIn);
+          if (checkOut) params.set('check_out', checkOut);
+
+          // Replace halaman dengan parameter baru
+          const newUrl = window.location.pathname + '?' + params.toString();
+          window.location.href = newUrl;
+        }
+
+        // Jalankan hanya ketika user ubah check-in, check-out, atau kamar
+        document.querySelector('input[name="check_in"]').addEventListener('change', updateURL);
+        document.querySelector('input[name="check_out"]').addEventListener('change', updateURL);
+        document.querySelector('select[name="room"]').addEventListener('change', updateURL);
+      </script>
+
+
     </div>
 
     <!-- RIGHT SIDEBAR -->

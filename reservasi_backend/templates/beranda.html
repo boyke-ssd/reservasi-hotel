@@ -130,7 +130,13 @@
                         <span>Kami Samakan Harga</span>
                     </div>
                 </div>
-                <a href="{% url 'reservation_form' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">Pilih Kamar</a>
+                {% if featured_hotel and featured_hotel.id %}
+                <a href="{% url 'reservation_form' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">
+                    Pilih Kamar
+                </a>
+                {% else %}
+                <span class="text-gray-400 text-sm">Hotel tidak tersedia</span>
+                {% endif %}
             </div>
         </div>
 

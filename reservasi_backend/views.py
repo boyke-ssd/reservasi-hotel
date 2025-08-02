@@ -220,8 +220,14 @@ class ReservationView(AppLoginRequiredMixin, View):
             # Tampilkan form reservasi
             hotel = get_object_or_404(Hotel, pk=hotel_id)
             rooms = Room.objects.filter(hotel=hotel, is_available=True).select_related('room_type')
-            check_in = request.GET.get('check_in') or date.today().strftime('%Y-%m-%d')
-            check_out = request.GET.get('check_out') or (date.today() + timezone.timedelta(days=1)).strftime('%Y-%m-%d')
+            check_in = request.GET.get('check_in') 
+            check_out = request.GET.get('check_out') 
+            if not check_in or check_in.lower() == 'none':
+                check_in = date.today().strftime('%Y-%m-%d')
+
+            if not check_out or check_out.lower() == 'none':
+                check_out = (date.today() + timezone.timedelta(days=1)).strftime('%Y-%m-%d')
+                
             room_id = request.GET.get('room_id')
             room = Room.objects.filter(pk=room_id).first() if room_id else rooms.first() if rooms.exists() else None
 
@@ -266,6 +272,8 @@ class ReservationView(AppLoginRequiredMixin, View):
                 'total_kamar': total_kamar,
                 'pajak': pajak,
                 'total_harga': total_harga,
+                'check_in': check_in,  
+                'check_out': check_out  
             })
         else:
             # Tampilkan daftar reservasi
@@ -290,10 +298,29 @@ class ReservationView(AppLoginRequiredMixin, View):
         pajak = Decimal(0)
         total_harga = total_kamar
 
+        # ✅ DEFINISIKAN DULU
+        check_in_str = request.POST.get('check_in')
+        check_out_str = request.POST.get('check_out')
+        check_in = None
+        check_out = None
+
+        if check_in_str and check_out_str:
+            try:
+                check_in = datetime.strptime(check_in_str, "%Y-%m-%d").date()
+                check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
+                if check_out > check_in:
+                    durasi = (check_out - check_in).days
+                    total_kamar = harga_kamar * durasi
+                    pajak = total_kamar * self.TAX_RATE
+                    total_harga = total_kamar + pajak
+            except (ValueError, TypeError):
+                pass
+
+        # ✅ SEKARANG BARU CEK form.is_valid()
         if form.is_valid():
             check_in = form.cleaned_data['check_in']
             check_out = form.cleaned_data['check_out']
-            if check_in and check_out and check_out > check_in:
+            if check_out > check_in:
                 durasi = (check_out - check_in).days
                 total_kamar = harga_kamar * durasi
                 pajak = total_kamar * self.TAX_RATE
@@ -302,10 +329,11 @@ class ReservationView(AppLoginRequiredMixin, View):
             reservation = form.save(commit=False)
             reservation.user = request.user
             reservation.hotel = hotel
+            reservation.status = 'PENDING'  # atau status default kamu
             reservation.total_price = total_harga
-            reservation.status = 'PENDING'
             reservation.save()
-            messages.success(request, 'Reservasi berhasil dibuat! Silakan lakukan pembayaran.')
+
+            # 🔁 Redirect ke halaman pembayaran
             return redirect('payment', reservation_id=reservation.id)  # Redirect ke halaman pembayaran
 
         check_in_str = request.POST.get('check_in')
@@ -332,6 +360,8 @@ class ReservationView(AppLoginRequiredMixin, View):
             'total_kamar': total_kamar,
             'pajak': pajak,
             'total_harga': total_harga,
+            'check_in': check_in,  
+            'check_out': check_out 
         })
 
 # Pembayaran

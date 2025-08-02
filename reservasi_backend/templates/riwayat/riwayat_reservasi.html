@@ -46,6 +46,13 @@
                         <a href="{% url 'reservation_detail' reservation.id %}" class="bg-teal-medium text-white px-4 py-2 rounded-md hover:bg-teal-dark transition-colors">
                             Lihat Detail
                         </a>
+                        {% if reservation.status == 'CHECKED_OUT' and not reservation.review %}
+                        <a href="{% url 'review' reservation.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors ml-2">
+                            Beri Ulasan
+                        </a>
+                        {% elif reservation.review %}
+                        <p class="mt-2 text-sm text-green-600">Ulasan telah diberikan</p>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
