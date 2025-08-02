@@ -1,0 +1,30 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block title %}Beri Ulasan{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-navy-dark mb-4">Beri Ulasan untuk Kamar {{ reservation.room.room_type.name }}</h1>
+
+    <form method="post" class="bg-white p-6 rounded-lg shadow-md max-w-xl">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-700 font-semibold mb-2">Rating (1-5)</label>
+            {{ form.rating }}
+            {% if form.rating.errors %}
+                <p class="text-red-500 text-sm">{{ form.rating.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-semibold mb-2">Komentar</label>
+            {{ form.comment }}
+            {% if form.comment.errors %}
+                <p class="text-red-500 text-sm">{{ form.comment.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <button type="submit" class="bg-teal-medium text-white px-4 py-2 rounded hover:bg-teal-dark transition">Kirim Ulasan</button>
+        <a href="{% url 'reservation_history' %}" class="ml-2 text-gray-600 underline">Batal</a>
+    </form>
+</div>
+{% endblock %}
