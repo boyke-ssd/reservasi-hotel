@@ -1,161 +1,451 @@
 {% extends 'layout/base.html' %}
 {% load static humanize %}
 
-{% block title %}Beranda - Hotel Djangoo{% endblock %}
+{% block title %}Beranda Reservasi Hotel | NginepYuk!{% endblock %}
 
 {% block content %}
-<!-- Hero Section dengan Search Bar -->
-<section class="relative w-full min-h-[500px] overflow-hidden hero-section search-background">
-    <div class="absolute inset-0 z-0">
-        <img src="{% static 'images/background.jpg' %}" alt="Background Image" class="w-full h-full object-cover">
-        <div class="absolute inset-0 search-overlay"></div>
-    </div>
 
-    <div class="relative z-10 pt-20 pb-8">
-        <div class="container mx-auto px-4">
+<!-- Hero Section dengan Search Bar -->
+<section class="gradient-bg relative w-full min-h-[500px] overflow-hidden hero-section">
+    <div class="container mx-auto px-4">
+        <div class="relative z-10 pt-20 pb-8">
             <h1 class="text-white text-5xl font-bold mb-2">Hotels</h1>
-            <div class="w-8 h-1 bg-teal-medium rounded-full"></div>
+            <div class="w-8 h-1 bg-white rounded-full"></div>
+            <p class="text-white opacity-90 mt-4">Pilih dari berbagai hotel terbaik untuk liburan atau perjalanan bisnis Anda</p>
         </div>
     </div>
 
-    <div class="relative z-10 flex justify-center items-center">
+    <!--Pencarian-->
+    <div id="searchContainer" class="relative z-10 search-container p-4">
         <div class="container mx-auto px-4 max-w-6xl">
-            <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-4 search-bar glass">
-                <div class="flex flex-col lg:flex-row gap-2 items-stretch rounded-lg p-2">
-                    <!-- Destination -->
+            <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="search-form bg-white p-4">
+                <!-- Main Search Controls -->
+                <div class="flex flex-col lg:flex-row gap-4 items-center">
+                    <!-- Destination (Region) -->
                     <div class="flex-1 min-w-[200px] relative">
-                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium" onclick="toggleDestinationDropdown()">
-                            <div class="flex flex-col justify-center h-full">
-                                <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Destinasi</span>
-                                <span class="text-sm font-medium text-navy-dark" id="destinationValue">Pilih Hotel</span>
-                            </div>
+                        <label for="regionDropdown" class="block text-sm font-medium text-[--navy-dark] mb-1">Pilih Region</label>
+                        <div class="bg-white p-2 h-12 cursor-pointer hover:shadow-md transition-shadow border border-[--teal-light] search-input flex items-center" onclick="toggleRegionDropdown()">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="text-sm font-medium text-[--navy-dark]" id="regionValue">Pilih Region</span>
+                            <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
                         </div>
-                        <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50">
-                            <div class="border-t max-h-48 overflow-y-auto">
-                                {% for hotel in all_hotels %}
-                                    <div class="p-3 hover:bg-gray-50 cursor-pointer" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-medium">{{ hotel.region }}</span>
-                                        </div>
-                                        <span class="text-xs text-gray-500">{{ hotel.name }}</span>
-                                    </div>
+                        <div id="regionDropdown" class="absolute w-full mt-1 bg-white rounded-md shadow-lg border border-[--teal-light] hidden z-50">
+                            <div class="max-h-48 overflow-y-auto p-1">
+                                <div class="p-2 hover:bg-[--mint-light] cursor-pointer rounded-md" onclick="selectRegion('Semua', '')">
+                                    <span class="font-medium text-[--navy-dark]">Semua Region</span>
+                                </div>
+                                {% for region in regions %}
+                                <div class="p-2 hover:bg-[--mint-light] cursor-pointer rounded-md" onclick="selectRegion('{{ region.name }}', '{{ region.id }}')">
+                                    <span class="font-medium text-[--navy-dark]">{{ region.name }}</span>
+                                </div>
                                 {% endfor %}
                             </div>
                         </div>
-                        <input type="hidden" name="destination_id" id="destinationInput">
+                        <input type="hidden" name="region_id" id="selectedRegion">
                     </div>
-
-                    <!-- Check-in -->
-                    <div class="flex-1 min-w-[140px] relative">
-                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
-                            <div class="flex flex-col justify-center h-full">
-                                <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Check-in</span>
-                                <input type="date" name="check_in" id="checkinValue" class="text-sm font-medium text-navy-dark">
-                            </div>
+                    
+                    <!-- Check-in (Range) -->
+                    <div class="flex-1 min-w-[280px] relative">
+                        <label for="dateRange" class="block text-sm font-medium text-[--navy-dark] mb-1">Tanggal Check-in/Check-out</label>
+                        <div class="bg-white p-2 h-12 hover:shadow-md transition-shadow border border-[--teal-light] search-input flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <input type="text" name="date_range" id="dateRange" class="text-sm font-medium text-[--navy-dark] w-full focus:outline-none" placeholder="Pilih rentang tanggal" readonly>
                         </div>
                     </div>
-
-                    <!-- Check-out -->
-                    <div class="flex-1 min-w-[140px] relative">
-                        <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-teal-medium">
-                            <div class="flex flex-col justify-center h-full">
-                                <span class="text-xs font-semibold text-teal-medium uppercase tracking-wide">Check-out</span>
-                                <input type="date" name="check_out" id="checkoutValue" class="text-sm font-medium text-navy-dark">
-                            </div>
-                        </div>
+                    
+                    <!-- Tombol Cari -->
+                    <div class="mt-auto">
+                        <button type="submit" class="bg-[--teal-medium] text-white font-semibold rounded-md px-4 py-3 hover:bg-[--teal-dark] transition-all duration-300 flex items-center justify-center hover:shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>Cari Hotel</span>
+                        </button>
                     </div>
-
-                    <!-- Search Button -->
-                    <button type="submit" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 min-w-[120px] justify-center h-14">
-                        <span>Search</span>
-                    </button>
+                </div>
+                
+                <!-- Filter Rating Bintang -->
+                <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                    <span class="text-sm font-medium text-[--navy-dark] whitespace-nowrap">Filter Rating:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="2">
+                            2 <span class="text-yellow-400">★</span>
+                        </button>
+                        <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="3">
+                            3 <span class="text-yellow-400">★</span>
+                        </button>
+                        <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="4">
+                            4 <span class="text-yellow-400">★</span>
+                        </button>
+                        <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="5">
+                            5 <span class="text-yellow-400">★</span>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Hotel Region Buttons -->
-    <div class="relative z-10 mt-6 mb-4">
-        <div class="container mx-auto px-4">
-            <h3 class="text-white font-bold mb-4 text-left">Temukan hotel di:</h3>
-            <div class="flex flex-wrap gap-2 justify-start">
-                {% for region in regions %}
-                    <a href="{% url 'hotel_search' %}?region={{ region.name }}" 
-                       class="bg-white/90 hover:bg-white text-navy-dark text-sm py-2 px-4 rounded-lg shadow-md transition-all transform hover:scale-105">
-                        {{ region.name }}
-                    </a>
+    <!-- Spacer div for when search becomes sticky -->
+    <div id="searchSpacer" class="hidden"></div>
+</section>
+
+<!-- Rekomendasi Hotel Terbaik -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center text-[--navy-dark] mb-4">Rekomendasi Hotel Terbaik</h2>
+        <p class="text-center text-gray-600 max-w-2xl mx-auto mb-12">Temukan hotel-hotel terbaik pilihan kami dengan fasilitas lengkap dan harga terjangkau untuk pengalaman menginap yang tak terlupakan</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for hotel in hotels %}
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-500 hover:shadow-xl hover:-translate-y-2 group">
+                    <div class="relative overflow-hidden">
+                        {% with first_image=hotel.gallery.first %}
+                            <img src="{{ first_image.image.url|default:'/static/images/vila.jpg' }}" alt="{{ hotel.name }}" class="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110">
+                        {% endwith %}
+                        <!-- Region Badge -->
+                        <div class="absolute top-4 left-4">
+                            <span class="inline-block bg-white/80 backdrop-blur-sm text-[--navy-dark] text-xs font-semibold px-3 py-1 rounded-lg shadow-md">
+                                {{ hotel.region }}
+                            </span>
+                        </div>
+                        <!-- Rating Badge -->
+                        <div class="absolute top-4 right-4">
+                            <div class="flex items-center bg-white/80 backdrop-blur-sm text-yellow-500 px-2 py-1 rounded-lg shadow-md">
+                                {% if hotel.average_rating %}
+                                    <span class="text-xs font-bold mr-1">{{ hotel.average_rating|floatformat:1 }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                    </svg>
+                                {% else %}
+                                    <span class="text-xs font-medium">Baru</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-[--navy-dark] group-hover:text-[--teal-medium] transition-colors duration-300">{{ hotel.name }}</h3>
+                            <div class="flex items-baseline">
+                                <span class="font-semibold text-[--teal-medium]">
+                                    {% if hotel.room_types.first.base_price %}
+                                        Rp {{ hotel.room_types.first.base_price|intcomma }}
+                                    {% else %}
+                                        Hubungi kami
+                                    {% endif %}
+                                </span>
+                                <span class="text-xs text-gray-500 ml-1">/malam</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm mb-4">
+                            <span>{{ hotel.location|default:'Indonesia' }}</span>
+                        </div>
+                        <div class="flex items-center mb-5">
+                            {% if hotel.star_rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= hotel.star_rating %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-xs text-gray-500">Belum ada rating</span>
+                            {% endif %}
+                        </div>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'reservation_form' hotel_id=hotel.id %}" class="inline-block w-full text-center bg-[--navy-dark] text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-[--teal-medium] transform hover:-translate-y-1 hover:shadow-lg">Booking Sekarang</a>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'reservation_form' hotel_id=hotel.id %}" class="inline-block w-full text-center bg-[--navy-dark] text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-[--teal-medium] transform hover:-translate-y-1 hover:shadow-lg">Booking Sekarang</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Popular Hotels Worldwide -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-row items-center justify-between mb-8">
+            <h2 class="text-3xl font-bold text-[--navy-dark]">Hotels Di Indonesia</h2>
+            <div class="flex items-center space-x-2">
+                <button id="scrollLeftPopular" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="scrollRightPopular" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Region Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button id="region-all" class="region-tab bg-[--navy-dark] text-white px-5 py-2 rounded-lg font-medium" data-region="all">Semua</button>
+            {% for region in regions %}
+                <button id="region-{{ region.name|lower }}" class="region-tab bg-white text-[--navy-dark] px-5 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors" data-region="{{ region.name }}">{{ region.name }}</button>
+            {% endfor %}
+        </div>
+        
+        <!-- Scrollable Hotel Cards -->
+        <div class="relative">
+            <div class="popular-hotels-container flex space-x-5 overflow-x-auto scrollbar-hide pb-6">
+                {% for hotel in all_hotels %}
+                <div class="hotel-card-wide flex-shrink-0 w-80 bg-white rounded-lg overflow-hidden shadow-md" data-region="{{ hotel.region }}">
+                    <div class="relative h-48">
+                        {% with first_image=hotel.gallery.first %}
+                            <img src="{{ first_image.image.url|default:'/static/images/hotel-building-6950972_1920.jpg' }}" alt="{{ hotel.name }}" class="w-full h-full object-cover">
+                        {% endwith %}
+                        <div class="absolute top-2 left-2 bg-[--navy-dark] text-white px-3 py-1 rounded-lg text-sm font-bold flex items-center">
+                            <span>{{ hotel.average_rating|floatformat:1 }}</span>
+                            <span class="text-xs">/10</span>
+                            <span class="text-xs ml-1 text-gray-200">({% widthratio hotel.average_rating 5 100 %} ulasan)</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-[--navy-dark] flex items-center">
+                            {{ hotel.name }}
+                            <div class="flex ml-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= hotel.star_rating %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">{{ hotel.location }} | {{ hotel.region }}</p>
+                        <div class="flex justify-end mt-2">
+                            <span class="text-[--teal-medium] font-bold">
+                                {% if hotel.room_types.first.base_price %}
+                                    Dari Rp {{ hotel.room_types.first.base_price|intcomma }}
+                                {% else %}
+                                    Hubungi kami
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </section>
 
-<!-- Hotel Details Section -->
-<section class="bg-white py-6">
+<!-- Top 5-Star Luxury Hotels -->
+<section class="py-16 bg-white">
     <div class="container mx-auto px-4">
-        <nav class="flex space-x-8 border-b border-gray-200 mb-6">
-            <button aria-current="page" class="nav-tab border-b-2 border-teal-medium pb-3 text-teal-medium font-semibold text-sm" type="button">Ringkasan</button>
-            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Kamar</button>
-            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Ulasan Tamu</button>
-            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Layanan & Fasilitas</button>
-            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Kebijakan</button>
-            <button class="nav-tab pb-3 text-gray-600 hover:text-teal-medium font-medium text-sm" type="button">Lokasi</button>
-        </nav>
-
-        <div class="flex flex-col lg:flex-row justify-between items-start gap-6">
-            <div class="flex-1">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2 brand-hover">
-                    <span>{{ featured_hotel.name }}</span>
-                    <div class="flex items-center text-yellow-400">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= featured_hotel.average_rating|floatformat:0|add:0 %}
-                                <i class="fas fa-star text-sm"></i>
-                            {% else %}
-                                <i class="far fa-star text-sm"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </h1>
-                <p class="text-gray-600 text-sm mb-4 flex items-center gap-2">
-                    <span>{{ featured_hotel.location }}</span>
-                    <a class="link-hover text-teal-medium font-medium hover:underline" href="https://www.google.com/maps/search/?api=1&query={{ featured_hotel.location|urlencode }}" target="_blank">Lihat Peta</a>
-                </p>
+        <div class="flex flex-row items-center justify-between mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-[--navy-dark] mb-2">Top Luxury Hotels</h2>
+                <p class="text-gray-600">Pengalaman menginap terbaik hanya di hotel bintang 5 pilihan kami</p>
             </div>
-
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <div class="text-sm text-gray-400 line-through">Rp {{ featured_hotel.room_types.first.base_price|add:10000|intcomma }}</div>
-                    <div class="text-2xl font-bold text-gray-800">Rp {{ featured_hotel.room_types.first.base_price|intcomma }}</div>
-                    <div class="flex items-center gap-1 text-xs text-green-600 font-medium">
-                        <span>Kami Samakan Harga</span>
-                    </div>
-                </div>
-                {% if featured_hotel and featured_hotel.id %}
-                <a href="{% url 'reservation_form' hotel_id=featured_hotel.id %}" class="btn-hover bg-navy-dark text-white font-semibold px-6 py-3 rounded-md hover:shadow-md">
-                    Pilih Kamar
-                </a>
-                {% else %}
-                <span class="text-gray-400 text-sm">Hotel tidak tersedia</span>
-                {% endif %}
+            <div class="flex items-center space-x-2">
+                <button id="scrollLeftLuxury" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="scrollRightLuxury" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
         </div>
-
-        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-7 gap-2">
-            {% for image in gallery %}
-                <div class="{% if forloop.first %}relative col-span-1 sm:col-span-2 md:col-span-3{% else %}relative{% endif %}">
-                    <img alt="{{ image.caption|default:'Hotel Image' }}" 
-                         class="rounded-lg object-cover w-full {% if forloop.first %}h-48 sm:h-40 md:h-64{% else %}h-20 sm:h-20 md:h-32{% endif %}" 
-                         src="{{ image.image.url }}" />
-                    {% if forloop.first %}
-                        <button aria-label="Add to favorites" class="absolute top-3 right-3 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition backdrop-blur-sm">
-                            <i class="far fa-heart text-gray-700"></i>
-                        </button>
-                    {% endif %}
+        
+        <!-- Luxury Hotel Cards -->
+        <div class="relative">
+            <div class="luxury-hotels-container flex space-x-5 overflow-x-auto scrollbar-hide pb-6">
+                {% for hotel in luxury_hotels %}
+                <div class="luxury-hotel-card flex-shrink-0 w-80 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <div class="relative h-52">
+                        {% with first_image=hotel.gallery.first %}
+                            <img src="{{ first_image.image.url|default:'/static/images/hotel-building-6950972_1920.jpg' }}" alt="{{ hotel.name }}" class="w-full h-full object-cover">
+                        {% endwith %}
+                        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div class="absolute top-4 right-4 flex">
+                            {% for i in "12345" %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                                </svg>
+                            {% endfor %}
+                        </div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <h3 class="text-xl font-bold">{{ hotel.name }}</h3>
+                            <p class="text-sm opacity-90">{{ hotel.location }} | {{ hotel.region }}</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center">
+                                <div class="text-sm text-gray-600">Rating Pengguna</div>
+                                <div class="ml-2 bg-[--navy-dark] text-white px-2 py-1 rounded text-xs font-bold">{{ hotel.average_rating|floatformat:1 }}</div>
+                            </div>
+                            <div class="text-[--teal-medium] font-bold">
+                                {% if hotel.room_types.first.base_price %}
+                                    Rp {{ hotel.room_types.first.base_price|intcomma }}
+                                {% else %}
+                                    Hubungi
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Kolam Renang</span>
+                            <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Spa</span>
+                            <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Restoran</span>
+                            <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Gym</span>
+                        </div>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'reservation_form' hotel_id=hotel.id %}" class="block w-full text-center bg-[--navy-dark] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[--teal-medium] transition-colors">Booking Sekarang</a>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'reservation_form' hotel_id=hotel.id %}" class="block w-full text-center bg-[--navy-dark] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[--teal-medium] transition-colors">Booking Sekarang</a>
+                        {% endif %}
+                    </div>
                 </div>
-            {% endfor %}
-            <div class="relative rounded-lg overflow-hidden cursor-pointer w-full h-20 sm:h-20 md:h-32 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition">
-                <div class="text-center">
-                    <span class="text-sm font-medium text-gray-700">Lihat semua foto</span>
+                {% empty %}
+                <div class="w-full text-center py-10">
+                    <p class="text-gray-500 text-lg">Tidak ada hotel bintang 5 yang tersedia saat ini.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promo Spesial -->
+<section class="py-12 bg-gradient-to-b from-white to-[--mint-light]/20">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-[--navy-dark] mb-4 md:mb-0">Promo Spesial Untuk Anda</h2>
+            <div class="flex items-center space-x-2">
+                <button id="scrollLeftPromo" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="scrollRightPromo" class="p-2 rounded-full bg-white shadow-md hover:bg-[--teal-light] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <a href="#" class="ml-4 flex items-center text-[--teal-medium] hover:text-[--teal-dark] transition-colors duration-300 group">
+                    <span class="font-semibold">Lihat Semua Promo</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+        
+        <div class="promo-container flex space-x-5 overflow-x-auto scrollbar-hide pb-4">
+            <!-- Promo Card 1 -->
+            <div class="promo-card flex-shrink-0 w-72 bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
+                <div class="relative h-40 overflow-hidden">
+                    <img src="{% static 'images/hotel-1749602_1280.jpg' %}" alt="Promo Diskon" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
+                        DISKON 25%
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold text-[--navy-dark] mb-1">Diskon Spesial Hari Kemerdekaan</h3>
+                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">Nikmati diskon spesial hingga 25% untuk pemesanan hotel di seluruh Indonesia.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Sampai 31 Agustus</span>
+                        <a href="#" class="text-xs font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Gunakan Kode &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Promo Card 2 -->
+            <div class="promo-card flex-shrink-0 w-72 bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
+                <div class="relative h-40 overflow-hidden">
+                    <img src="{% static 'images/cityscape-3566340_1280.jpg' %}" alt="Promo Staycation" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
+                        PAKET HEMAT
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold text-[--navy-dark] mb-1">Paket Staycation Keluarga</h3>
+                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">Paket khusus untuk liburan keluarga dengan fasilitas lengkap.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Sepanjang tahun 2025</span>
+                        <a href="#" class="text-xs font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Lihat Detail &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Promo Card 3 -->
+            <div class="promo-card flex-shrink-0 w-72 bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
+                <div class="relative h-40 overflow-hidden">
+                    <img src="{% static 'images/hotel-building-6950972_1920.jpg' %}" alt="Promo Weekend" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
+                        FLASH SALE
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold text-[--navy-dark] mb-1">Flash Sale Weekend</h3>
+                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">Dapatkan diskon hingga 40% untuk pemesanan di akhir pekan.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Setiap Jumat - Minggu</span>
+                        <a href="#" class="text-xs font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Pesan Sekarang &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Promo Card 4 -->
+            <div class="promo-card flex-shrink-0 w-72 bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
+                <div class="relative h-40 overflow-hidden">
+                    <img src="{% static 'images/skyscraper-73860_1920.jpg' %}" alt="Promo Early Bird" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
+                        EARLY BIRD
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold text-[--navy-dark] mb-1">Early Bird Discount</h3>
+                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">Booking lebih awal dan dapatkan diskon hingga 30% untuk semua hotel.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Min. 30 hari sebelumnya</span>
+                        <a href="#" class="text-xs font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Lihat Detail &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Promo Card 5 -->
+            <div class="promo-card flex-shrink-0 w-72 bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
+                <div class="relative h-40 overflow-hidden">
+                    <img src="{% static 'images/city-5716456_1920.jpg' %}" alt="Promo Tahun Baru" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
+                        PROMO SPESIAL
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold text-[--navy-dark] mb-1">Spesial Tahun Baru</h3>
+                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">Rayakan tahun baru dengan promo eksklusif di hotel berbintang.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Segera Hadir!</span>
+                        <a href="#" class="text-xs font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Ikuti Update &rarr;</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,103 +482,64 @@
             </div>
             <div class="md:w-1/2">
                 <div class="bg-[--mint-light] bg-opacity-30 rounded-xl p-6">
-                    <h3 class="text-xl font-bold text-[--navy-dark] mb-3">Teknologi yang Digunakan</h3>
-                    <div class="technologies-container flex overflow-x-auto scrollbar-hide pb-4 pt-2">
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <i class="fab fa-python text-xl mb-1 text-[--teal-medium]"></i>
-                            <div class="text-sm font-medium">Python</div>
-                        </div>
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <i class="fab fa-js text-xl mb-1 text-[--teal-medium]"></i>
-                            <div class="text-sm font-medium">JavaScript</div>
-                        </div>
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <i class="fab fa-html5 text-xl mb-1 text-[--teal-medium]"></i>
-                            <div class="text-sm font-medium">HTML5/CSS3</div>
-                        </div>
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <img src="{% static 'images/django.png' %}" alt="Django" class="h-6 mx-auto mb-1" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBmaWxsPSIjMDkyZTIwIiBkPSJNMTEuMSAwaDEuOHY2LjVjMS43LS4xIDMuMy0uNSA0LjYtMS4xVjhDMTUuNyA4LjcgMTMuOCA5IDExLjkgOWgtLjh2NS4yYzAgMy4xLS40IDQuNi0xLjYgNS44QzguNSAyMS4zIDYuOSAyMiA0LjcgMjJjLTEuNiAwLTMtLjMtMy44LS45di0zYy45LjcgMiAxLjEgMy4yIDEuMWMxLjMgMCAyLjMtLjQgMi45LTEuMmMuNi0uOC44LTIuMS44LTQuNnYtLjVINC43Yy0yLjQgMC00LjMtLjUtNS42LTEuNVY3LjZjMS4yLjggMi43IDEuMiA0LjUgMS4zVjUuNWMtMS42LS4zLTMtMS01LjUtMS44VjBjMi42LjkgNC42IDEuNCA2LjEgMS40Vjk1LjNjLS40LTIuNCAxLjQtMi43IDEuNC1zLjQgMy40LS41IDQuNS0xLjZWMGMtMiAuOC00LjUgMS40LTcgMS40eiIvPjwvc3ZnPg==';">
-                            <div class="text-sm font-medium">Django</div>
-                        </div>
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <i class="fas fa-database text-xl mb-1 text-[--teal-medium]"></i>
-                            <div class="text-sm font-medium">SQLite</div>
-                        </div>
-                        <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[120px] mr-3 flex-shrink-0">
-                            <i class="fab fa-css3 text-xl mb-1 text-[--teal-medium]"></i>
-                            <div class="text-sm font-medium">Tailwind CSS</div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-[--navy-dark]">Teknologi yang Digunakan</h3>
+                        <div class="flex items-center space-x-2">
+                            <button id="scrollLeftTech" class="p-1.5 rounded-full bg-white shadow-sm hover:bg-[--teal-light] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button id="scrollRightTech" class="p-1.5 rounded-full bg-white shadow-sm hover:bg-[--teal-light] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--navy-dark]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Promo Spesial -->
-<section class="py-16 bg-gradient-to-b from-white to-[--mint-light]/20">
-    <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row items-center justify-between mb-8">
-            <h2 class="text-3xl font-bold text-[--navy-dark] mb-4 md:mb-0">Promo Spesial Untuk Anda</h2>
-            <a href="#" class="flex items-center text-[--teal-medium] hover:text-[--teal-dark] transition-colors duration-300 group">
-                <span class="font-semibold">Lihat Semua Promo</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-            </a>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Promo Card 1 -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="{% static 'images/hotel-1749602_1280.jpg' %}" alt="Promo Diskon" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
-                        DISKON 25%
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-lg font-bold text-[--navy-dark] mb-2">Diskon Spesial Hari Kemerdekaan</h3>
-                    <p class="text-gray-600 text-sm mb-4">Nikmati diskon spesial hingga 25% untuk pemesanan hotel di seluruh Indonesia dalam rangka memperingati hari kemerdekaan.</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">Berlaku sampai 31 Agustus 2025</span>
-                        <a href="#" class="text-sm font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Gunakan Kode &rarr;</a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Promo Card 2 -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="{% static 'images/cityscape-3566340_1280.jpg' %}" alt="Promo Staycation" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
-                        PAKET HEMAT
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-lg font-bold text-[--navy-dark] mb-2">Paket Staycation Keluarga</h3>
-                    <p class="text-gray-600 text-sm mb-4">Paket khusus untuk liburan keluarga dengan fasilitas lengkap termasuk sarapan dan akses ke semua fasilitas hotel.</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">Berlaku sepanjang tahun 2025</span>
-                        <a href="#" class="text-sm font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Lihat Detail &rarr;</a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Promo Card 3 -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl group">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="{% static 'images/hotel-building-6950972_1920.jpg' %}" alt="Promo Weekend" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                    <div class="absolute top-4 left-4 bg-[--teal-medium] text-white font-bold px-3 py-1 rounded-lg shadow-md">
-                        FLASH SALE
-                    </div>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-lg font-bold text-[--navy-dark] mb-2">Flash Sale Weekend</h3>
-                    <p class="text-gray-600 text-sm mb-4">Dapatkan diskon hingga 40% untuk pemesanan di akhir pekan. Terbatas hanya 50 kamar untuk setiap properti!</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">Setiap Jumat - Minggu</span>
-                        <a href="#" class="text-sm font-semibold text-[--teal-medium] hover:text-[--teal-dark] transition-colors">Pesan Sekarang &rarr;</a>
+                    <div class="tech-carousel relative overflow-hidden">
+                        <div class="technologies-container flex overflow-x-auto scrollbar-hide pb-4 pt-2" id="techContainer">
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-python text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">Python</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-js text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">JavaScript</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-html5 text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">HTML5</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-css3-alt text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">CSS3</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-react text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">React</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fas fa-database text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">SQLite</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <img src="{% static 'images/django.png' %}" alt="Django" class="h-5 mx-auto mb-1" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBmaWxsPSIjMDkyZTIwIiBkPSJNMTEuMSAwaDEuOHY2LjVjMS43LS4xIDMuMy0uNSA0LjYtMS4xVjhDMTUuNyA4LjcgMTMuOCA5IDExLjkgOWgtLjh2NS4yYzAgMy4xLS40IDQuNi0xLjYgNS44QzguNSAyMS4zIDYuOSAyMiA0LjcgMjJjLTEuNiAwLTMtLjMtMy44LS45di0zYy45LjcgMiAxLjEgMy4yIDEuMWMxLjMgMCAyLjMtLjQgMi45LTEuMmMuNi0uOC44LTIuMS44LTQuNnYtLjVINC43Yy0yLjQgMC00LjMtLjUtNS42LTEuNVY3LjZjMS4yLjggMi43IDEuMiA0LjUgMS4zVjUuNWMtMS42LS4zLTMtMS01LjUtMS44VjBjMi42LjkgNC42IDEuNCA2LjEgMS40Vjk1LjNjLS40LTIuNCAxLjQtMi43IDEuNC1zLjQgMy40LS41IDQuNS0xLjZWMGMtMiAuOC00LjUgMS40LTcgMS40eiIvPjwvc3ZnPg==';">
+                                <div class="text-sm font-medium">Django</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-aws text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">AWS</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-bootstrap text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">Bootstrap</div>
+                            </div>
+                            <div class="tech-item bg-white p-3 rounded-lg text-center min-w-[100px] mr-3 flex-shrink-0">
+                                <i class="fab fa-github text-xl mb-1 text-[--teal-medium]"></i>
+                                <div class="text-sm font-medium">GitHub</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -381,87 +632,6 @@
     </div>
 </section>
 
-<!-- Rekomendasi Hotel Terbaik -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-[--navy-dark] mb-4">Rekomendasi Hotel Terbaik</h2>
-        <p class="text-center text-gray-600 max-w-2xl mx-auto mb-12">Temukan hotel-hotel terbaik pilihan kami dengan fasilitas lengkap dan harga terjangkau untuk pengalaman menginap yang tak terlupakan</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {% for hotel in hotels %}
-                <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-500 hover:shadow-xl hover:-translate-y-2 group">
-                    <div class="relative overflow-hidden">
-                        {% with first_image=hotel.gallery.first %}
-                            <img src="{{ first_image.image.url|default:'/static/images/vila.jpg' }}" alt="{{ hotel.name }}" class="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110">
-                        {% endwith %}
-                        <!-- Region Badge -->
-                        <div class="absolute top-4 left-4">
-                            <span class="inline-block bg-white/80 backdrop-blur-sm text-[--navy-dark] text-xs font-semibold px-3 py-1 rounded-lg shadow-md">
-                                {{ hotel.region }}
-                            </span>
-                        </div>
-                        <!-- Rating Badge -->
-                        <div class="absolute top-4 right-4">
-                            <div class="flex items-center bg-white/80 backdrop-blur-sm text-yellow-500 px-2 py-1 rounded-lg shadow-md">
-                                {% if hotel.average_rating %}
-                                    <span class="text-xs font-bold mr-1">{{ hotel.average_rating|floatformat:1 }}</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                                    </svg>
-                                {% else %}
-                                    <span class="text-xs font-medium">Baru</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[--navy-dark] group-hover:text-[--teal-medium] transition-colors duration-300">{{ hotel.name }}</h3>
-                            <div class="flex items-baseline">
-                                <span class="font-semibold text-[--teal-medium]">
-                                    {% if hotel.room_types.first.base_price %}
-                                        Rp {{ hotel.room_types.first.base_price|intcomma }}
-                                    {% else %}
-                                        Hubungi kami
-                                    {% endif %}
-                                </span>
-                                <span class="text-xs text-gray-500 ml-1">/malam</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-gray-500 text-sm mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span>{{ hotel.location|default:'Indonesia' }}</span>
-                        </div>
-                        <div class="flex items-center mb-5">
-                            {% if hotel.star_rating %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= hotel.star_rating %}
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                                        </svg>
-                                    {% else %}
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                                        </svg>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-xs text-gray-500">Belum ada rating</span>
-                            {% endif %}
-                        </div>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'reservation_form' hotel_id=hotel.id %}" class="inline-block w-full text-center bg-[--navy-dark] text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-[--teal-medium] transform hover:-translate-y-1 hover:shadow-lg">Booking Sekarang</a>
-                        {% else %}
-                            <a href="{% url 'login' %}?next={% url 'reservation_form' hotel_id=hotel.id %}" class="inline-block w-full text-center bg-[--navy-dark] text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-[--teal-medium] transform hover:-translate-y-1 hover:shadow-lg">Booking Sekarang</a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
 
 <!-- FAQ Section -->
 <section class="py-16 bg-[--mint-light]/20">
@@ -611,95 +781,51 @@
     </div>
 </section>
 
-<!-- CSS Styles for Animations and Effects -->
-<style>
-    /* Improved Button Hover Effect */
-    .btn-hover {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    
-    .btn-hover:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: all 0.6s ease;
-    }
-    
-    .btn-hover:hover:before {
-        left: 100%;
-    }
-    
-    /* Smooth Transition for Images */
-    .tech-item {
-        transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    }
-    
-    .tech-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Hide scrollbar for technology container */
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    
-    .scrollbar-hide {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-    
-    /* Card hover transform */
-    .card-hover {
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    
-    .card-hover:hover {
-        transform: translateY(-8px);
-    }
-    
-    /* FAQ Animation */
-    .faq-icon {
-        transition: transform 0.3s ease;
-    }
-    
-    .faq-icon.active {
-        transform: rotate(180deg);
-    }
-    
-    .faq-answer {
-        transition: all 0.3s ease;
-    }
-</style>
+<!-- External Libraries -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- JavaScript untuk Dropdown Functionality -->
 <script>
-function toggleDestinationDropdown() {
-    const dropdown = document.getElementById('destinationDropdown');
+function toggleRegionDropdown() {
+    const dropdown = document.getElementById('regionDropdown');
     dropdown.classList.toggle('hidden');
-    closeOtherDropdowns('destinationDropdown');
 }
 
-function selectDestination(destination, hotelId) {
-    document.getElementById('destinationValue').textContent = destination;
-    document.getElementById('destinationInput').value = hotelId;
-    document.getElementById('destinationDropdown').classList.add('hidden');
+function selectRegion(name, id) {
+    document.getElementById('regionValue').textContent = name;
+    document.getElementById('selectedRegion').value = id;
+    document.getElementById('regionDropdown').classList.add('hidden');
 }
 
-function closeOtherDropdowns(except) {
-    const dropdowns = ['destinationDropdown'];
-    dropdowns.forEach(id => {
-        if (id !== except) {
-            document.getElementById(id).classList.add('hidden');
-        }
+function resetFilters() {
+    document.getElementById('regionValue').textContent = 'Pilih Region';
+    document.getElementById('selectedRegion').value = '';
+    document.getElementById('dateRange').value = '';
+    
+    // Unselect all star filters
+    document.querySelectorAll('.star-filter').forEach(btn => {
+      btn.classList.remove('selected', 'bg-[--teal-medium]', 'text-white');
     });
+    
+    // Remove hidden inputs
+    document.querySelectorAll('input[name="star_rating"]').forEach(input => input.remove());
+    
+    // Submit the form
+    document.querySelector('form').submit();
 }
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    // Close region dropdown
+    const regionDropdown = document.getElementById('regionDropdown');
+    const regionTrigger = document.querySelector('[onclick="toggleRegionDropdown()"]');
+    
+    if (regionDropdown && !regionDropdown.contains(event.target) && (!regionTrigger || !regionTrigger.contains(event.target))) {
+        regionDropdown.classList.add('hidden');
+    }
+});
 
 document.addEventListener('click', function(event) {
     const dropdowns = ['destinationDropdown'];
@@ -741,6 +867,77 @@ function toggleFAQ(element) {
 
 // Smooth scroll for navigation
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date picker
+    flatpickr("#dateRange", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      defaultDate: null,
+      theme: "material_blue",
+      locale: {
+        rangeSeparator: ' sampai ',
+        firstDayOfWeek: 1
+      },
+      onChange: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length === 2) {
+          const start = selectedDates[0].toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).split('/').reverse().join('-');
+          const end = selectedDates[1].toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).split('/').reverse().join('-');
+          instance.input.value = `${start} sampai ${end}`;
+        } else {
+          instance.input.value = dateStr;
+        }
+      }
+    });
+
+    // Star rating filter with visual feedback
+    const starFilters = document.querySelectorAll('.star-filter');
+    const selectedRatings = new Set();
+    
+    // Check URL parameters to set initial state
+    const urlParams = new URLSearchParams(window.location.search);
+    const starRatings = urlParams.getAll('star_rating');
+    
+    starFilters.forEach(button => {
+      const rating = button.getAttribute('data-rating');
+      
+      // Set initial state based on URL params
+      if (starRatings.includes(rating)) {
+        button.classList.add('selected', 'bg-[--teal-medium]', 'text-white');
+        selectedRatings.add(rating);
+      }
+      
+      button.addEventListener('click', function() {
+        const isSelected = this.classList.contains('selected');
+
+        if (isSelected) {
+          this.classList.remove('selected', 'bg-[--teal-medium]', 'text-white');
+          selectedRatings.delete(rating);
+        } else {
+          this.classList.add('selected', 'bg-[--teal-medium]', 'text-white');
+          selectedRatings.add(rating);
+        }
+
+        // Update hidden inputs without submitting
+        const form = this.closest('form');
+        form.querySelectorAll('input[name="star_rating"]').forEach(input => input.remove());
+        selectedRatings.forEach(rating => {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'star_rating';
+          hiddenInput.value = rating;
+          form.appendChild(hiddenInput);
+        });
+      });
+    });
+
     // Add smooth scrolling to all links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
@@ -756,33 +953,290 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize any other interactive components
-    const techContainer = document.querySelector('.technologies-container');
-    if (techContainer) {
-        const scroll = (direction) => {
-            const scrollAmount = 300;
-            if (direction === 'left') {
-                techContainer.scrollBy({
-                    left: -scrollAmount,
-                    behavior: 'smooth'
-                });
-            } else {
-                techContainer.scrollBy({
-                    left: scrollAmount,
-                    behavior: 'smooth'
-                });
-            }
-        };
+    // Sticky Search Functionality
+    const searchContainer = document.getElementById('searchContainer');
+    const searchSpacer = document.getElementById('searchSpacer');
+    let searchContainerHeight = searchContainer.offsetHeight;
+    let searchContainerTop = searchContainer.offsetTop;
+    let ticking = false;
+
+    function handleScroll() {
+        const scrollY = window.scrollY;
         
-        // Optional: Add scroll buttons if needed
-        const scrollLeftBtn = document.getElementById('scrollLeftBtn');
-        const scrollRightBtn = document.getElementById('scrollRightBtn');
-        
-        if (scrollLeftBtn && scrollRightBtn) {
-            scrollLeftBtn.addEventListener('click', () => scroll('left'));
-            scrollRightBtn.addEventListener('click', () => scroll('right'));
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                if (scrollY > searchContainerTop) {
+                    // Make search sticky
+                    searchContainer.classList.add('sticky-search');
+                    searchSpacer.classList.remove('hidden');
+                    searchSpacer.style.height = `${searchContainerHeight}px`;
+                } else {
+                    // Remove sticky
+                    searchContainer.classList.remove('sticky-search');
+                    searchSpacer.classList.add('hidden');
+                }
+                ticking = false;
+            });
+            ticking = true;
         }
     }
+
+    // Recalculate dimensions on window resize
+    function updateDimensions() {
+        searchContainerHeight = searchContainer.offsetHeight;
+        // Only update top position when not sticky
+        if (!searchContainer.classList.contains('sticky-search')) {
+            searchContainerTop = searchContainer.offsetTop;
+        }
+    }
+
+    // Initialize
+    updateDimensions();
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', updateDimensions);
+    
+    // CAROUSEL SCROLLING FUNCTIONALITY
+    // Tech Container Scroll
+    const techContainer = document.getElementById('techContainer');
+    const scrollLeftTech = document.getElementById('scrollLeftTech');
+    const scrollRightTech = document.getElementById('scrollRightTech');
+    
+    if (techContainer && scrollLeftTech && scrollRightTech) {
+        scrollLeftTech.addEventListener('click', () => {
+            techContainer.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollRightTech.addEventListener('click', () => {
+            techContainer.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Auto scroll for tech container
+        let techScrollInterval;
+        
+        function startTechAutoScroll() {
+            techScrollInterval = setInterval(() => {
+                if (techContainer.scrollLeft + techContainer.clientWidth >= techContainer.scrollWidth - 10) {
+                    // Reset to beginning when reaching the end
+                    techContainer.scrollTo({
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    techContainer.scrollBy({
+                        left: 100,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 5000); // Scroll every 5 seconds
+        }
+        
+        function stopTechAutoScroll() {
+            clearInterval(techScrollInterval);
+        }
+        
+        // Start auto scroll
+        startTechAutoScroll();
+        
+        // Stop auto scroll on hover
+        techContainer.addEventListener('mouseenter', stopTechAutoScroll);
+        techContainer.addEventListener('mouseleave', startTechAutoScroll);
+    }
+    
+    // Popular Hotels Scroll
+    const popularHotelsContainer = document.querySelector('.popular-hotels-container');
+    const scrollLeftPopular = document.getElementById('scrollLeftPopular');
+    const scrollRightPopular = document.getElementById('scrollRightPopular');
+    
+    if (popularHotelsContainer && scrollLeftPopular && scrollRightPopular) {
+        scrollLeftPopular.addEventListener('click', () => {
+            popularHotelsContainer.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollRightPopular.addEventListener('click', () => {
+            popularHotelsContainer.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    // Luxury Hotels Scroll
+    const luxuryHotelsContainer = document.querySelector('.luxury-hotels-container');
+    const scrollLeftLuxury = document.getElementById('scrollLeftLuxury');
+    const scrollRightLuxury = document.getElementById('scrollRightLuxury');
+    
+    if (luxuryHotelsContainer && scrollLeftLuxury && scrollRightLuxury) {
+        scrollLeftLuxury.addEventListener('click', () => {
+            luxuryHotelsContainer.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollRightLuxury.addEventListener('click', () => {
+            luxuryHotelsContainer.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    // Promo Scroll
+    const promoContainer = document.querySelector('.promo-container');
+    const scrollLeftPromo = document.getElementById('scrollLeftPromo');
+    const scrollRightPromo = document.getElementById('scrollRightPromo');
+    
+    if (promoContainer && scrollLeftPromo && scrollRightPromo) {
+        scrollLeftPromo.addEventListener('click', () => {
+            pausePromoAutoScroll();
+            promoContainer.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+            setTimeout(resumePromoAutoScroll, 1500);
+        });
+        
+        scrollRightPromo.addEventListener('click', () => {
+            pausePromoAutoScroll();
+            promoContainer.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+            setTimeout(resumePromoAutoScroll, 1500);
+        });
+        
+        // Auto scroll for promo container
+        let promoScrollInterval;
+        let promoScrollPosition = 0;
+        let promoScrollStep = 1; // Small increment for slower scrolling
+        let isScrollPaused = false;
+        
+        function startPromoAutoScroll() {
+            promoScrollInterval = setInterval(() => {
+                if (isScrollPaused) return; // Skip if paused
+                
+                if (promoContainer.scrollLeft + promoContainer.clientWidth >= promoContainer.scrollWidth - 30) {
+                    // Pause at the end for a moment before resetting
+                    pausePromoAutoScroll();
+                    setTimeout(() => {
+                        // Reset to beginning after pause
+                        promoContainer.scrollTo({
+                            left: 0,
+                            behavior: 'smooth' 
+                        });
+                        // Wait a moment after reset before continuing scroll
+                        setTimeout(() => {
+                            resumePromoAutoScroll();
+                        }, 1500); // 1.5 second pause after reset
+                    }, 2000); // 2 second pause at the end
+                } else {
+                    promoContainer.scrollBy({
+                        left: promoScrollStep,
+                        behavior: 'auto'
+                    });
+                }
+            }, 60); // 60ms interval for smooth scrolling as requested
+        }
+        
+        function pausePromoAutoScroll() {
+            isScrollPaused = true;
+        }
+        
+        function resumePromoAutoScroll() {
+            isScrollPaused = false;
+        }
+        
+        // Pause auto scroll on hover
+        promoContainer.addEventListener('mouseenter', pausePromoAutoScroll);
+        promoContainer.addEventListener('mouseleave', resumePromoAutoScroll);
+        
+        // Start auto scroll
+        startPromoAutoScroll();
+    }
+    
+    // FILTER HOTELS BY REGION
+    const regionTabs = document.querySelectorAll('.region-tab');
+    const hotelCards = document.querySelectorAll('.hotel-card-wide');
+    
+    if (regionTabs.length > 0 && hotelCards.length > 0) {
+        regionTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                regionTabs.forEach(tab => {
+                    tab.classList.remove('bg-[--navy-dark]', 'text-white');
+                    tab.classList.add('bg-white', 'text-[--navy-dark]');
+                });
+                
+                // Add active class to clicked tab
+                tab.classList.remove('bg-white', 'text-[--navy-dark]');
+                tab.classList.add('bg-[--navy-dark]', 'text-white');
+                
+                const selectedRegion = tab.getAttribute('data-region');
+                
+                // Show/hide hotel cards based on region
+                hotelCards.forEach(card => {
+                    if (selectedRegion === 'all' || card.getAttribute('data-region') === selectedRegion) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+});
+
+// Function to handle dropdown positioning
+function positionDropdown() {
+  const dropdown = document.getElementById('regionDropdown');
+  if (dropdown && !dropdown.classList.contains('hidden')) {
+    const button = document.querySelector('[onclick="toggleRegionDropdown()"]');
+    const buttonRect = button.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // Check if there's enough space below
+    const spaceBelow = windowHeight - buttonRect.bottom;
+    const dropdownHeight = dropdown.offsetHeight;
+    
+    if (spaceBelow < dropdownHeight && buttonRect.top > dropdownHeight) {
+      // Position above if not enough space below
+      dropdown.style.bottom = (buttonRect.height + 5) + 'px';
+      dropdown.style.top = 'auto';
+    } else {
+      // Position below
+      dropdown.style.top = '100%';
+      dropdown.style.bottom = 'auto';
+    }
+  }
+}
+
+// Add event listener to run when dropdown is toggled
+document.addEventListener('DOMContentLoaded', function() {
+  const originalToggleFunction = window.toggleRegionDropdown;
+  
+  window.toggleRegionDropdown = function() {
+    if (originalToggleFunction) {
+      originalToggleFunction();
+    } else {
+      const dropdown = document.getElementById('regionDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+    
+    // Position the dropdown after toggling
+    setTimeout(positionDropdown, 10);
+  };
+  
+  // Reposition on window resize
+  window.addEventListener('resize', positionDropdown);
 });
 </script>
 {% endblock %}

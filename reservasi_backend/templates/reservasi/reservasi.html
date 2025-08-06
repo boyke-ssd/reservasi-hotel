@@ -5,52 +5,111 @@
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-6">
   <!-- Header -->
-  <div class="bg-blue-600 text-white rounded-xl p-4 mb-6">
-    <h2 class="text-lg font-semibold">Pilih > Detail > <span class="font-bold">Konfirmasi</span></h2>
+  <div class="border-b border-gray-200 pb-4 mb-6">
+    <div class="flex items-center mb-6">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8" onerror="this.src='https://via.placeholder.com/120x40?text=Logo'">
+    </div>
+    <div class="flex items-center space-x-8">
+      <div class="flex items-center">
+        <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</div>
+        <span class="text-gray-900 font-medium">Pilih Hotel</span>
+      </div>
+      <div class="flex items-center">
+        <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</div>
+        <span class="text-gray-900 font-medium">Detail Pemesanan</span>
+      </div>
+      <div class="flex items-center">
+        <div class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">3</div>
+        <span class="text-gray-900 font-bold">Konfirmasi</span>
+      </div>
+    </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- LEFT FORM -->
     <div class="lg:col-span-2 space-y-6">
-      <!-- Info Tamu -->
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-lg font-bold mb-4">Info Tamu</h3>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" name="first_name" placeholder="Nama depan & tengah" value="{{ form.first_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="last_name" placeholder="Nama belakang" value="{{ form.last_name.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
-            <input type="email" name="email" placeholder="Email" value="{{ form.email.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
-            <input type="text" name="phone" placeholder="Nomor telepon (+62)" value="{{ form.phone.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+      <!-- Form container that wraps everything -->
+      <form method="POST">
+        {% csrf_token %}
+        
+        <!-- Info Tamu -->
+        <div class="bg-white p-6 rounded-xl shadow mt-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-gray-900">Info Tamu</h3>
+            <div class="text-sm text-blue-600">* wajib diisi</div>
           </div>
-          <!-- Check-in, Check-out, dan Room dipindahkan ke dalam form -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          
+          <div class="text-sm text-gray-600 mb-5">
+            Nama tamu harus sesuai dengan ID/KTP yang akan digunakan untuk check-in
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label class="text-sm font-semibold text-gray-600">Check-in</label>
-              <input type="date" name="check_in" value="{{ form.check_in.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Nama Depan & Tengah <span class="text-blue-600">*</span>
+              </label>
+              <input type="text" name="first_name" id="guest_name" value="" 
+                class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+              {% if form.first_name.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+              {% endif %}
             </div>
+            
             <div>
-              <label class="text-sm font-semibold text-gray-600">Check-out</label>
-              <input type="date" name="check_out" value="{{ form.check_out.value|default_if_none:'' }}" required class="border px-3 py-2 rounded w-full">
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Nama Belakang <span class="text-blue-600">*</span>
+              </label>
+              <input type="text" name="last_name" value="" 
+                class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+              {% if form.last_name.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+              {% endif %}
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Email <span class="text-blue-600">*</span>
+                <span class="text-xs text-gray-500 font-normal">(untuk konfirmasi pemesanan)</span>
+              </label>
+              <input type="email" name="email" value="" 
+                class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+              {% if form.email.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+              {% endif %}
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Nomor Telepon <span class="text-blue-600">*</span>
+              </label>
+              <div class="flex">
+                <div class="relative flex-shrink-0">
+                  <select name="phone_code" class="appearance-none bg-gray-100 border border-gray-300 px-3 py-2 pr-8 rounded-l-md focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+                    <option value="+62">+62</option>
+                    <option value="+60">+60</option>
+                    <option value="+65">+65</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <input type="text" name="phone" value="" 
+                  class="flex-grow border-l-0 border border-gray-300 px-3 py-2 rounded-r-md focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+              </div>
+              {% if form.phone.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+              {% endif %}
             </div>
           </div>
-          <div class="mt-4">
-            <label class="text-sm font-semibold text-gray-600">Pilih Kamar</label>
-            <select name="room" required class="border px-3 py-2 rounded w-full">
-              <option value="">-- Pilih Kamar --</option>
-              {% for r in rooms %}
-              <option value="{{ r.id }}" {% if r.id == form.room.value|default_if_none:'' %}selected{% endif %}>
-                {{ r.room_type.name }} (No. {{ r.number }})
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-          {% if form.errors %}
+          
+          {% if form.non_field_errors %}
           <div class="bg-red-100 text-red-700 p-4 rounded mt-4">
             <p class="font-bold">Terjadi kesalahan:</p>
             <ul class="list-disc list-inside text-sm">
-              {% for field, errors in form.errors.items %}
-              <li>{{ field }}: {{ errors|striptags }}</li>
+              {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
               {% endfor %}
             </ul>
           </div>
@@ -58,85 +117,208 @@
         </div>
 
       <!-- Permintaan Khusus -->
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-lg font-bold mb-4">Permintaan Khusus <span class="text-sm text-gray-400">(Opsional)</span></h3>
-        <div class="space-y-3">
-          <div class="flex items-center gap-3">
-            <label><input type="radio" name="bed_type" value="double"> 1 double bed</label>
-            <label><input type="radio" name="bed_type" value="twin"> 2 single bed</label>
+      <div class="bg-white p-6 rounded-xl shadow mt-6">
+        <h3 class="text-lg font-bold mb-5 text-gray-900">Permintaan Khusus <span class="text-sm text-gray-400">(Opsional)</span></h3>
+        <div class="space-y-5">
+          <div>
+            <p class="text-sm font-medium text-gray-900 mb-3">Preferensi Tempat Tidur</p>
+            <div class="flex items-center gap-6">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bed_type" value="double" class="text-blue-600 focus:ring-blue-500 h-4 w-4"> 
+                <span class="text-gray-900">1 double bed</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bed_type" value="twin" class="text-blue-600 focus:ring-blue-500 h-4 w-4"> 
+                <span class="text-gray-900">2 single bed</span>
+              </label>
+            </div>
           </div>
-          <label class="flex items-center gap-2">
-            <input type="checkbox" name="non_smoking"> <span>Utamakan kamar bebas rokok</span>
-          </label>
-          <textarea name="special_request" rows="3" class="w-full border rounded px-3 py-2" placeholder="Permintaan lain (opsional)"></textarea>
+          
+          <div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="non_smoking" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"> 
+              <span class="text-sm font-medium text-gray-900">Utamakan kamar bebas rokok</span>
+            </label>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">Permintaan Lain</label>
+            <textarea name="special_request" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900" placeholder="Tuliskan permintaan khusus lainnya di sini (opsional)"></textarea>
+            <p class="text-xs text-gray-600 mt-1">*Kami akan berusaha memenuhi permintaan Anda sesuai ketersediaan</p>
+          </div>
         </div>
       </div>
       
       <!-- METODE PEMBAYARAN -->
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-lg font-bold mb-4">Metode Pembayaran</h3>
-        <div class="flex flex-col gap-2">
-          <label><input type="radio" name="payment_method" value="credit" checked onclick="togglePaymentMethod()"> Kartu Kredit/Debit</label>
-          <label><input type="radio" name="payment_method" value="ewallet" onclick="togglePaymentMethod()"> Dompet Digital (OVO, DANA, GoPay)</label>
+      <div class="bg-white p-6 rounded-xl shadow mt-6">
+        <h3 class="text-lg font-bold mb-5 text-gray-900">Metode Pembayaran</h3>
+        <div class="flex flex-col gap-4">
+          <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="payment_method" value="credit" checked onclick="togglePaymentMethod()" class="text-blue-600 focus:ring-blue-500 h-4 w-4"> 
+            <span class="font-medium text-gray-900">Kartu Kredit/Debit</span>
+          </label>
+          <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
+            <input type="radio" name="payment_method" value="ewallet" onclick="togglePaymentMethod()" class="text-blue-600 focus:ring-blue-500 h-4 w-4"> 
+            <span class="font-medium text-gray-900">Dompet Digital (OVO, DANA, GoPay)</span>
+          </label>
         </div>
 
         <!-- Form Kartu Kredit -->
-        <div id="credit-form" class="mt-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input type="text" name="card_number" placeholder="Nomor kartu bank" class="border px-3 py-2 rounded w-full">
-            <input type="text" name="card_name" placeholder="Nama pemegang kartu" class="border px-3 py-2 rounded w-full">
-            <input type="month" name="expiry" class="border px-3 py-2 rounded w-full">
-            <input type="text" name="cvv" placeholder="CVV/CVC" class="border px-3 py-2 rounded w-full">
+        <div id="credit-form" class="mt-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Nomor Kartu</label>
+              <input type="text" name="card_number" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" placeholder="XXXX XXXX XXXX XXXX" value="">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Nama Pemegang Kartu</label>
+              <input type="text" name="card_name" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" value="">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Masa Berlaku</label>
+              <input type="month" name="expiry" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" value="">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">CVV/CVC</label>
+              <input type="text" name="cvv" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" placeholder="XXX" value="">
+              <p class="text-xs text-gray-600 mt-1">3 digit terakhir di belakang kartu</p>
+            </div>
           </div>
         </div>
 
         <!-- Form E-Wallet -->
-        <div id="ewallet-form" class="mt-4 hidden">
-          <label class="block mb-2 text-sm font-medium">Nomor Dompet Digital</label>
-          <input type="text" name="ewallet_number" placeholder="08xxxxxxx (OVO/DANA/GoPay)" class="border px-3 py-2 rounded w-full">
+        <div id="ewallet-form" class="mt-6 hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">Nomor Dompet Digital</label>
+            <input type="text" name="ewallet_number" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" placeholder="08xxxxxxx (OVO/DANA/GoPay)" value="">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">Nama Akun E-walet</label>
+            <input type="text" name="ewallet_name" class="border border-gray-300 px-3 py-2 rounded-md w-full focus:ring-blue-500 focus:border-blue-500 text-gray-900" placeholder="08xxxxxxx (OVO/DANA/GoPay)" value="">
+            <p class="text-xs text-gray-600 mt-1">Pastikan Nomor dan Akun terdaftar di layanan OVO, DANA, atau GoPay</p>
+          </div>
         </div>
       </div>
 
-      <!-- Rentang Tanggal -->
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="text-lg font-bold mb-4">Rentang Tanggal</h3>
-        <div class="flex space-x-4">
-          <div class="w-1/2">
-            <label class="block text-sm font-semibold text-gray-600">Check-in</label>
-            <input type="date" name="check_in" id="{{ form.check_in.id_for_label }}" value="{{ form.initial.check_in|default_if_none:'' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-            {% if form.check_in.errors %}
-              {% for error in form.check_in.errors %}
-                <p class="text-red-500 text-xs">{{ error }}</p>
-              {% endfor %}
-            {% endif %}
+      <!-- Rentang Tanggal dan Kamar -->
+      <div class="bg-white p-6 rounded-xl shadow mt-6">
+        <h3 class="text-lg font-bold mb-5 text-gray-900">Detail Menginap</h3>
+        
+        <!-- Rentang Tanggal -->
+        <div class="mb-8">
+          <div class="text-sm font-medium text-gray-900 mb-3">Tanggal Check-in/Check-out <span class="text-blue-600">*</span></div>
+          <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+            <div class="w-full md:w-1/2">
+              <div class="relative">
+                <input type="date" name="check_in" id="check_in_date" value="{{ form.check_in.value|default:'' }}" 
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900" required>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">Check-in mulai pukul 14:00</div>
+              {% if form.check_in.errors %}
+                {% for error in form.check_in.errors %}
+                  <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="w-full md:w-1/2">
+              <div class="relative">
+                <input type="date" name="check_out" id="check_out_date" value="{{ form.check_out.value|default:'' }}" 
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-gray-900" required>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">Check-out sebelum pukul 12:00</div>
+              {% if form.check_out.errors %}
+                {% for error in form.check_out.errors %}
+                  <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
           </div>
-          <div class="w-1/2">
-            <label class="block text-sm font-semibold text-gray-600">Check-out</label>
-            <input type="date" name="check_out" id="{{ form.check_out.id_for_label }}" value="{{ form.initial.check_out|default_if_none:'' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-            {% if form.check_out.errors %}
-              {% for error in form.check_out.errors %}
-                <p class="text-red-500 text-xs">{{ error }}</p>
+        </div>
+        
+        <!-- Pilih Kamar -->
+        <div>
+          <div class="text-sm font-medium text-gray-900 mb-3">Pilih Kamar <span class="text-blue-600">*</span></div>
+          <div class="relative">
+            <select name="room" id="room_select" class="appearance-none border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 bg-white" required>
+              <option value="">-- Pilih Kamar --</option>
+              {% for r in rooms %}
+                <option value="{{ r.id }}" data-roomtype="{{ r.room_type.name }}" data-roomnumber="{{ r.number }}" {% if r.id == form.room.value|default:'' %}selected{% endif %}>
+                  {{ r.room_type.name }} (No. {{ r.number }})
+                </option>
               {% endfor %}
-            {% endif %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
           </div>
+          {% if form.room.errors %}
+            {% for error in form.room.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
 
       <!-- Submit -->
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-        Langkah Terakhir
+      <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-6 text-lg">
+        Konfirmasi Reservasi
       </button>
-      </form>
+      </form><!-- End of main form -->
       <script>
         let isSubmitting = false;
 
         // Deteksi kalau user klik submit
-        document.querySelector('form').addEventListener('submit', () => {
+        document.querySelector('form').addEventListener('submit', function(e) {
           isSubmitting = true;
+          // Form will submit naturally - no need to prevent default
         });
+
+        function showLoading() {
+          // Create loading overlay if it doesn't exist
+          let loadingOverlay = document.getElementById('loading-overlay');
+          if (!loadingOverlay) {
+            loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loading-overlay';
+            loadingOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            loadingOverlay.innerHTML = `
+              <div class="bg-white p-5 rounded-lg flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-700 font-medium">Mengupdate informasi...</span>
+              </div>
+            `;
+            document.body.appendChild(loadingOverlay);
+          } else {
+            loadingOverlay.classList.remove('hidden');
+          }
+        }
+
+        function hideLoading() {
+          const loadingOverlay = document.getElementById('loading-overlay');
+          if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+          }
+        }
 
         function updateURL() {
           if (isSubmitting) return; // Jangan update URL kalau sedang submit
+
+          // Show loading animation
+          showLoading();
 
           const form = document.querySelector('form');
           const roomId = form.querySelector('select[name="room"]').value;
@@ -153,10 +335,19 @@
           window.location.href = newUrl;
         }
 
-        // Jalankan hanya ketika user ubah check-in, check-out, atau kamar
-        document.querySelector('input[name="check_in"]').addEventListener('change', updateURL);
-        document.querySelector('input[name="check_out"]').addEventListener('change', updateURL);
-        document.querySelector('select[name="room"]').addEventListener('change', updateURL);
+        // Add event listeners safely
+        document.addEventListener('DOMContentLoaded', function() {
+          const checkInInput = document.querySelector('input[name="check_in"]');
+          const checkOutInput = document.querySelector('input[name="check_out"]');
+          const roomSelect = document.querySelector('select[name="room"]');
+          
+          if (checkInInput) checkInInput.addEventListener('change', updateURL);
+          if (checkOutInput) checkOutInput.addEventListener('change', updateURL);
+          if (roomSelect) roomSelect.addEventListener('change', updateURL);
+          
+          // Hide loading on page load completion
+          hideLoading();
+        });
       </script>
 
 
@@ -164,42 +355,171 @@
 
     <!-- RIGHT SIDEBAR -->
     <div class="bg-white p-6 rounded-xl shadow h-fit">
-      <div class="flex items-center gap-4 mb-4">
-        <img src="{{ hotel.gallery.first.image.url }}" class="w-20 h-20 object-cover rounded" alt="">
-        <div>
-          <h4 class="font-bold">{{ hotel.name }}</h4>
-          <p class="text-sm text-gray-500">{{ hotel.location }}</p>
+      <div class="mb-4">
+        <div class="flex items-center gap-4 mb-2">
+          <img src="{{ hotel.gallery.first.image.url }}" class="w-24 h-24 object-cover rounded" alt="">
+          <div>
+            <h4 class="font-bold text-gray-900 text-lg">{{ hotel.name }}</h4>
+            <div class="flex items-center mt-1">
+              {% for i in "12345" %}
+                {% if forloop.counter <= hotel.star_rating %}
+                  <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                {% else %}
+                  <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <p class="text-sm text-gray-600 mt-1">{{ hotel.location }}</p>
+          </div>
+        </div>
+        
+        <div class="bg-blue-50 p-4 rounded-md mt-3 border border-blue-100">
+          <div class="flex items-center gap-2 text-blue-700 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <span class="font-medium">Hemat 5% dengan pemesanan sekarang!</span>
+          </div>
+        </div>
+      </div>
+    
+      <hr class="my-4">
+      
+      <!-- Informasi Reservasi -->
+      <div class="mb-4">
+        <h4 class="font-semibold text-gray-900 mb-3">Detail Pemesanan</h4>
+        
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-gray-700">
+              <span class="font-medium text-gray-900 block">Check-in</span>
+              <span id="sidebar_check_in" class="text-sm">
+                {% if form.check_in.value %}
+                  {{ form.check_in.value|date:"d F Y" }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+              <span class="text-sm text-gray-500 block">Mulai 14:00</span>
+            </div>
+            <div class="text-gray-700 text-right">
+              <span class="font-medium text-gray-900 block">Check-out</span>
+              <span id="sidebar_check_out" class="text-sm">
+                {% if form.check_out.value %}
+                  {{ form.check_out.value|date:"d F Y" }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+              <span class="text-sm text-gray-500 block">Sebelum 12:00</span>
+            </div>
+          </div>
+          
+          <div class="border-t border-b border-gray-100 py-3">
+            <div class="flex items-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <span id="sidebar_nights" class="text-sm text-gray-900">{{ durasi }} malam, 1 kamar</span>
+            </div>
+            
+            <div class="ml-7">
+              <div class="text-sm font-medium text-gray-900" id="sidebar_room_type">
+                {% if form.room.value %}
+                  {% for r in rooms %}
+                    {% if r.id == form.room.value %}
+                      {{ r.room_type.name }}
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  Pilih kamar
+                {% endif %}
+              </div>
+              <div class="text-sm text-gray-600" id="sidebar_room_number">
+                {% if form.room.value %}
+                  {% for r in rooms %}
+                    {% if r.id == form.room.value %}
+                      Kamar No. {{ r.number }}
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  -
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-sm text-gray-700">Tamu</div>
+            <div class="text-sm font-medium text-gray-900">1 dewasa</div>
+          </div>
         </div>
       </div>
     
       <hr class="my-4">
     
-      <!-- Pilih Kamar -->
-      <div class="mb-4">
-        <label class="text-sm font-semibold text-gray-600">Pilih Kamar</label>
-        <select name="room" id="{{ form.room.id_for_label }}" class="text-sm border border-gray-300 rounded px-3 py-2 w-full">
-          <option value="">-- Pilih Kamar --</option>
-          {% for r in form.fields.room.queryset %}
-            <option value="{{ r.id }}" {% if r.id == room_obj.id %}selected{% endif %}>
-              {{ r.room_type.name }} (No. {{ r.number }})
-            </option>
-          {% endfor %}
-        </select>
-        {% if form.room.errors %}
-          {% for error in form.room.errors %}
-            <p class="text-red-500 text-xs">{{ error }}</p>
-          {% endfor %}
-        {% endif %}
+      <!-- Ringkasan Harga -->
+      <div>
+        <h4 class="font-semibold text-gray-900 mb-3">Ringkasan Harga</h4>
+        
+        <div class="space-y-2 mb-4">
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-700"><span id="sidebar_nights_count">{{ durasi }}</span> malam × <span id="room_price" data-price="{{ harga_kamar }}">Rp {{ harga_kamar|intcomma }}</span></span>
+            <span id="sidebar_room_total" class="font-medium text-gray-900">Rp {{ total_kamar|intcomma }}</span>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-700">Pajak & biaya (10%)</span>
+            <span id="sidebar_tax" class="font-medium text-gray-900">Rp {{ pajak|intcomma }}</span>
+          </div>
+          {% if diskon %}
+          <div class="flex justify-between items-center text-sm text-green-600">
+            <span>Diskon</span>
+            <span>- Rp {{ diskon|intcomma }}</span>
+          </div>
+          {% endif %}
+        </div>
+        
+        <div class="bg-gray-50 p-3 rounded-md">
+          <div class="flex justify-between items-center">
+            <span class="font-semibold text-gray-900">Total</span>
+            <span class="font-bold text-blue-600 text-xl" id="sidebar_total">Rp {{ total_harga|intcomma }}</span>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">Termasuk pajak dan biaya</div>
+        </div>
+        
+        <!-- Hemat Points -->
+        <div class="bg-blue-50 p-3 rounded-md mt-3 border border-blue-100">
+          <div class="flex items-center gap-2 mb-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+            </svg>
+            <span class="font-medium text-blue-700">Anda hemat Rp {{ total_harga|floatformat:0|intcomma|slice:":-2" }}00</span>
+          </div>
+          <div class="text-xs text-gray-600 ml-7">Dengan harga spesial member</div>
+        </div>
       </div>
-    
-      <hr class="my-4">
-    
-      <!-- Harga -->
-      <p>Durasi: <strong>{{ durasi }} malam</strong></p>
-      <p>Harga per malam: <strong>Rp {{ harga_kamar|intcomma }}</strong></p>
-      <p>Total kamar: <strong>Rp {{ total_kamar|intcomma }}</strong></p>
-      <p>Pajak & biaya lainnya (10%): <strong>Rp {{ pajak|intcomma }}</strong></p>
-      <p class="font-bold text-blue-600 mt-2">Total: Rp {{ total_harga|intcomma }}</p>
+
+      <!-- Jaminan Keamanan -->
+      <div class="mt-6 pt-4 border-t border-gray-200">
+        <div class="flex items-center gap-2 text-gray-700 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span class="text-sm">Pembayaran aman & terenkripsi</span>
+        </div>
+        
+        <div class="flex items-center gap-2 text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
+          </svg>
+          <span class="text-sm">Konfirmasi instan</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -220,5 +540,186 @@
   }
 
   document.addEventListener('DOMContentLoaded', togglePaymentMethod);
+  
+  // Only reset fields if this is a brand new page load without any parameters
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      // Only clear fields if no URL parameters exist and we're not in the middle of form submission
+      if (window.location.search === '' && document.referrer === '') {
+        // Reset form values for new reservation - but don't reset if form was just submitted
+        const inputs = document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"])');
+        inputs.forEach(input => {
+          if (input.type !== 'submit' && input.type !== 'button') {
+            input.value = '';
+          }
+        });
+        
+        // Reset select elements
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+          select.selectedIndex = 0;
+        });
+        
+        // Reset textarea elements
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+          textarea.value = '';
+        });
+      }
+    } catch (error) {
+      console.error("Error in form reset:", error);
+    }
+  });
+  
+  // Format number to currency
+  function formatCurrency(number) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+  }
+  
+  // Calculate number of nights between two dates
+  function calculateNights(checkIn, checkOut) {
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  }
+  
+  // Update sidebar information
+  function updateSidebar() {
+    const checkInDate = document.getElementById('check_in_date').value;
+    const checkOutDate = document.getElementById('check_out_date').value;
+    const roomSelect = document.getElementById('room_select');
+    
+    // Update dates in sidebar
+    if (checkInDate) {
+      const formattedCheckIn = new Date(checkInDate).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+      const sidebarCheckIn = document.getElementById('sidebar_check_in');
+      if (sidebarCheckIn) {
+        sidebarCheckIn.textContent = formattedCheckIn;
+      }
+    }
+    
+    if (checkOutDate) {
+      const formattedCheckOut = new Date(checkOutDate).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+      const sidebarCheckOut = document.getElementById('sidebar_check_out');
+      if (sidebarCheckOut) {
+        sidebarCheckOut.textContent = formattedCheckOut;
+      }
+    }
+    
+    // Update nights count if both dates are set
+    if (checkInDate && checkOutDate) {
+      const nights = calculateNights(checkInDate, checkOutDate);
+      const sidebarNights = document.getElementById('sidebar_nights');
+      const sidebarNightsCount = document.getElementById('sidebar_nights_count');
+      
+      if (sidebarNights) {
+        sidebarNights.textContent = nights + ' malam, 1 kamar';
+      }
+      
+      if (sidebarNightsCount) {
+        sidebarNightsCount.textContent = nights;
+      }
+      
+      // Update total amount if room is also selected
+      if (roomSelect.value) {
+        const roomPriceElement = document.getElementById('room_price');
+        if (roomPriceElement && roomPriceElement.dataset.price) {
+          const roomPrice = parseFloat(roomPriceElement.dataset.price);
+          const totalRoomAmount = roomPrice * nights;
+          
+          // Calculate tax (10%)
+          const tax = totalRoomAmount * 0.1;
+          
+          // Calculate total (room + tax)
+          const totalAmount = totalRoomAmount + tax;
+          
+          // Update room total
+          const sidebarRoomTotal = document.getElementById('sidebar_room_total');
+          if (sidebarRoomTotal) {
+            sidebarRoomTotal.textContent = formatCurrency(totalRoomAmount);
+          }
+          
+          // Update tax
+          const sidebarTax = document.getElementById('sidebar_tax');
+          if (sidebarTax) {
+            sidebarTax.textContent = formatCurrency(tax);
+          }
+          
+          // Update grand total
+          const sidebarTotal = document.getElementById('sidebar_total');
+          if (sidebarTotal) {
+            sidebarTotal.textContent = formatCurrency(totalAmount);
+          }
+        }
+      }
+    }
+    
+    // Update room info if selected
+    if (roomSelect.value) {
+      const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+      const roomType = selectedOption.dataset.roomtype;
+      const roomNumber = selectedOption.dataset.roomnumber;
+      
+      const sidebarRoomType = document.getElementById('sidebar_room_type');
+      const sidebarRoomNumber = document.getElementById('sidebar_room_number');
+      
+      if (sidebarRoomType && roomType) {
+        sidebarRoomType.textContent = roomType;
+      }
+      
+      if (sidebarRoomNumber && roomNumber) {
+        sidebarRoomNumber.textContent = 'Kamar No. ' + roomNumber;
+      }
+    }
+  }
+  
+  // Add event listeners for auto-updating sidebar
+  document.addEventListener('DOMContentLoaded', function() {
+    // Update sidebar on page load
+    updateSidebar();
+    
+    // Add event listeners for form field changes
+    const checkInDate = document.getElementById('check_in_date');
+    const checkOutDate = document.getElementById('check_out_date');
+    const roomSelect = document.getElementById('room_select');
+    
+    if (checkInDate) {
+      checkInDate.addEventListener('change', updateSidebar);
+    }
+    
+    if (checkOutDate) {
+      checkOutDate.addEventListener('change', updateSidebar);
+    }
+    
+    if (roomSelect) {
+      roomSelect.addEventListener('change', updateSidebar);
+    }
+    
+    // Reset form values for new reservation if no URL parameters and not coming from a form submission
+    if (window.location.search === '' && document.referrer === '') {
+      // Clear form fields
+      const inputs = document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"])');
+      inputs.forEach(input => {
+        if (input.type !== 'submit' && input.type !== 'button') {
+          input.value = '';
+        }
+      });
+      
+      // Reset select elements
+      const selects = document.querySelectorAll('select');
+      selects.forEach(select => {
+        if (select.name !== 'phone_code') { // Keep the phone code dropdown as is
+          select.selectedIndex = 0;
+        }
+      });
+      
+      // Reset textarea elements
+      const textareas = document.querySelectorAll('textarea');
+      textareas.forEach(textarea => {
+        textarea.value = '';
+      });
+    }
+  });
 </script>
 {% endblock %}

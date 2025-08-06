@@ -31,6 +31,7 @@ class HomeView(TemplateView):
         context['featured_hotel'] = Hotel.objects.first()
         context['gallery'] = HotelGallery.objects.filter(hotel=context['featured_hotel'])[:6] if context['featured_hotel'] else []
         context['all_hotels'] = Hotel.objects.all()
+        context['luxury_hotels'] = Hotel.objects.filter(star_rating=5)
         
         # Add unique regions for hotel region buttons
         regions = []
@@ -447,12 +448,17 @@ class ReservationHistoryView(AppLoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = date.today()
-        context['reservations'] = Reservation.objects.filter(
+        # Ambil semua reservasi yang sudah selesai atau dibatalkan
+        reservations = Reservation.objects.filter(
             user=self.request.user,
             status__in=['CHECKED_OUT', 'CANCELLED']
         ).filter(
             Q(status='CHECKED_OUT', check_out__lt=today) | Q(status='CANCELLED')
-        ).order_by('-check_out')
+        )
+        # Urutkan: yang dibatalkan terbaru di atas, lalu yang selesai terbaru
+        cancelled = reservations.filter(status='CANCELLED').order_by('-created_at')
+        checked_out = reservations.filter(status='CHECKED_OUT').order_by('-check_out')
+        context['reservations'] = list(cancelled) + list(checked_out)
         return context
 
 # Ulasan

@@ -1,15 +1,12 @@
 {% extends 'layout/base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Login - Hotel Djangoo{% endblock %}
+{% block title %}Login Akun | NginepYuk{% endblock %}
 
 {% block content %}
-{# ================================================================= #}
-{# WRAPPER UNTUK MEMBUAT KONTEN DI TENGAH DAN MEMBERI BACKGROUND     #}
-{# ================================================================= #}
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br gradient-bg px-4 py-8">
 
-    {# Kartu form #}
+    {# form Login #}
     <div class="bg-white bg-opacity-20 backdrop-blur-lg shadow-xl rounded-2xl px-6 py-6 w-full max-w-md">
         <h2 class="text-3xl font-bold mb-2 text-center text-white">Selamat Datang</h2>
         <p class="text-center text-gray-200 mb-8">Silakan masuk untuk melanjutkan</p>
@@ -61,15 +58,4 @@
         </p>
     </div>
 </div>
-
-<script>
-document.getElementById('login-form').addEventListener('submit', function() {
-    const button = document.getElementById('login-button');
-    const buttonText = document.getElementById('button-text');
-    const buttonLoading = document.getElementById('button-loading');
-    button.disabled = true;
-    buttonText.classList.add('hidden');
-    buttonLoading.classList.remove('hidden');
-});
-</script>
 {% endblock %}

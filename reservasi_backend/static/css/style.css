@@ -1,3 +1,50 @@
+/* Beranda page styles moved from beranda.html */
+.sticky-search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 2rem;
+    transform: translateY(0);
+    transition: transform 0.3s ease, border-radius 0.3s ease, background-color 0.3s ease;
+}
+.sticky-search .search-form {
+    max-width: 1152px; /* 6xl in Tailwind */
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0.5rem;
+}
+.sticky-search-padding {
+    height: 0;
+    transition: height 0.3s ease;
+}
+.search-form {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2.5rem;
+}
+.search-input {
+    border-radius: 1.5rem;
+    border-width: 1px;
+    transition: all 0.3s ease;
+}
+.search-button {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 /* static/css/style.css (pindahkan dari templates ke static/css) */
 body {
     margin: 0;
@@ -280,6 +327,86 @@ body {
     color: var(--mint-light) !important;
 }
 
+/* Improved Button Hover Effect */
+.btn-hover {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btn-hover:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+}
+
+.btn-hover:hover:before {
+    left: 100%;
+}
+
+/* Smooth Transition for Images */
+.tech-item {
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.tech-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Hide scrollbar for technology container */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Enhanced smooth scroll transition for promo */
+.promo-container {
+    scroll-behavior: smooth;
+    transition: all 0.8s cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+/* Animation for ultra-smooth scrolling */
+@keyframes gentle-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% + 100vw)); }
+}
+
+.smooth-scroll-container {
+    transition: transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Card hover transform */
+.card-hover {
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+}
+
+/* FAQ Animation */
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-icon.active {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    transition: all 0.3s ease;
+}
+
 /* Perbaikan Path Statis (Gunakan CSS dinamis di HTML) */
 .search-background {
     background-size: cover;
@@ -298,6 +425,13 @@ body {
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 9999;
+}
+
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231C6758'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.5em;
 }
 
 .profile-modal {

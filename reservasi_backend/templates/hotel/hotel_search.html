@@ -3,18 +3,21 @@
 {% load humanize %}
 
 {% block content %}
-<div class="relative">
-  <!-- Sticky Search Form -->
-  <div class="sticky top-0 z-50 bg-[--mint-light] py-4 transition-all duration-300 shadow-md" id="stickySearch">
-    <div class="container mx-auto px-4 max-w-7xl">
-      <form method="GET" action="" aria-label="Hotel update form" class="bg-white rounded-lg shadow-xl p-6">
-      <div class="flex flex-col lg:flex-row gap-4 items-stretch">
+<div class="bg-white min-h-screen pt-2">
+  <!-- Sticky Search Form with Rounded Style -->
+  <div class="sticky top-0 z-[100] py-4 transition-all duration-300 shadow-md bg-white" id="stickySearch">
+    <div class="container mx-auto px-6 max-w-6xl">
+      <form method="GET" action="" aria-label="Hotel update form" class="search-form bg-white rounded-full shadow-lg p-3">
+      <div class="flex flex-col lg:flex-row gap-4 items-center">
         <!-- Destination (Region) - Bisa Diubah -->
         <div class="flex-1 min-w-[200px] relative">
-          <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[--teal-medium] group" onclick="toggleDestinationDropdown()" style="border-color: var(--teal-medium);">
-            <div class="flex flex-col justify-center h-full">
-              <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Destinasi</span>
-              <span class="text-sm font-medium text-[--teal-dark]" id="prevDestinationValue">
+          <div class="bg-white rounded-full p-3 h-12 cursor-pointer hover:shadow-md transition-shadow border border-[--teal-light] group search-input" onclick="toggleDestinationDropdown()">
+            <div class="flex items-center h-full pl-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-sm font-medium text-[--navy-dark]" id="prevDestinationValue">
                 {% if request.GET.destination_id and hotel_data %}
                   {% with hotel=hotel_data|first %}
                     {{ hotel.obj.region }} - {{ hotel.obj.name }}
@@ -25,137 +28,526 @@
               </span>
             </div>
           </div>
-          <div id="prevDestinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50" style="border-color: var(--teal-medium);">
-            <div class="border-t max-h-48 overflow-y-auto" style="border-color: var(--teal-medium);">
+          <div id="prevDestinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-[--teal-light] hidden z-50">
+            <div class="max-h-48 overflow-y-auto">
               {% for hotel in all_hotels %}
-              <div class="p-3 hover:bg-[--mint-light] cursor-pointer" style="hover:bg-color: var(--mint-light);" onclick="selectPrevDestination('{{ hotel.name }}', '{{ hotel.id }}')">
+              <div class="p-3 hover:bg-[--mint-light] cursor-pointer" onclick="selectPrevDestination('{{ hotel.name }}', '{{ hotel.id }}')">
                 <div class="flex items-center gap-2">
-                  <span class="font-medium text-[--teal-dark]" style="color: var(--teal-dark);">{{ hotel.region }}</span>
+                  <span class="font-medium text-[--navy-dark]">{{ hotel.region }}</span>
                 </div>
-                <span class="text-xs text-[--teal-medium]" style="color: var(--teal-medium);">{{ hotel.name }}</span>
+                <span class="text-xs text-[--teal-medium]">{{ hotel.name }}</span>
               </div>
               {% endfor %}
             </div>
           </div>
           <input type="hidden" name="destination_id" id="prevSelectedDestination" value="{{ request.GET.destination_id|default:'' }}">
         </div>
+        
         <!-- Check-in (Range) -->
         <div class="flex-1 min-w-[280px] relative">
-          <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 hover:shadow-md transition-shadow border-2 border-[--teal-medium] group">
-            <div class="flex flex-col justify-center h-full">
-              <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Check-in</span>
-              <input type="text" name="date_range" id="prevDateRange" class="text-sm font-medium text-[--teal-dark] w-full focus:outline-none" value="{{ request.GET.date_range|default:'Pilih rentang tanggal' }}" readonly>
+          <div class="bg-white rounded-full p-3 h-12 hover:shadow-md transition-shadow border border-[--teal-light] group search-input">
+            <div class="flex items-center h-full pl-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <input type="text" name="date_range" id="prevDateRange" class="text-sm font-medium text-[--navy-dark] w-full focus:outline-none" value="{{ request.GET.date_range|default:'Pilih rentang tanggal' }}" readonly>
             </div>
           </div>
         </div>
+        
         <!-- Update Button -->
-        <button type="submit" class="bg-[--teal-medium] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[--teal-dark] transition-colors flex items-center gap-2 min-w-[120px] justify-center h-14" style="background-color: var(--teal-medium);">
-          <span>Update</span>
+        <button type="submit" class="bg-[--teal-medium] text-white font-semibold rounded-full hover:bg-[--teal-dark] transition-all duration-300 flex items-center justify-center search-button hover:shadow-lg hover:scale-105">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
         </button>
       </div>
     </form>
   </div>
+  
+  <!-- CSS for Search Form -->
+  <style>
+    .search-form {
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 2.5rem;
+      position: relative;
+      z-index: 5;
+    }
+    
+    #stickySearch {
+      position: sticky;
+      padding-bottom: 1rem;
+      background-color: white;
+      margin-bottom: 0.5rem;
+    }
+    
+    .search-input {
+      border-radius: 1.5rem;
+      border-width: 1px;
+      transition: all 0.3s ease;
+    }
+    
+    .search-button {
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      min-width: 50px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .hotel-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hotel-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Horizontal card styles for desktop */
+    @media (min-width: 768px) {
+      .hotel-list-container {
+        max-width: 900px;
+      }
+      
+      .hotel-card .image-container {
+        border-radius: 0.75rem 0 0 0.75rem;
+        overflow: hidden;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .hotel-card .image-container {
+        border-radius: 0.75rem 0.75rem 0 0;
+        height: 180px;
+      }
+    }
+    
+    .amenity-badge {
+      transition: all 0.2s ease;
+    }
+    
+    .amenity-badge:hover {
+      background-color: var(--teal-light);
+      color: var(--navy-dark);
+    }
+    
+    .filter-option {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .filter-option:hover {
+      background-color: var(--mint-light);
+    }
+    
+    .filter-option.active {
+      background-color: var(--teal-medium);
+      color: white;
+    }
+    
+    .star-rating-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      background-color: #f3f4f6;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .star-rating-toggle:hover {
+      background-color: var(--mint-light);
+    }
+    
+    .star-rating-toggle.active {
+      background-color: var(--teal-medium);
+      color: white;
+    }
+    
+    .filter-section {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background-color: white;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .filter-section:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-title {
+      font-weight: 600;
+      color: var(--navy-dark);
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .price-slider {
+      height: 6px;
+      position: relative;
+      background-color: var(--mint-light);
+      border-radius: 5px;
+    }
+    
+    .price-slider-progress {
+      height: 100%;
+      position: absolute;
+      background-color: var(--teal-medium);
+      border-radius: 5px;
+    }
+    
+    .price-slider-handle {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      background-color: white;
+      border: 2px solid var(--teal-medium);
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.2s ease;
+    }
+    
+    .price-slider-handle:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Custom Scrollbar */
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background-color: #f3f4f6;
+      border-radius: 10px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: var(--teal-light);
+      border-radius: 10px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background-color: var(--teal-medium);
+    }
+    
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .scrollbar-hidden::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-hidden {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+  
   <!-- Layout Dua Kolom dengan Fixed Sidebar -->
-  <div class="flex flex-col lg:flex-row gap-6 min-h-screen">
+  <div class="flex flex-col lg:flex-row gap-6 container mx-auto px-6 max-w-6xl py-6 bg-white pt-6 mt-4">
     <!-- Filter Section (Kiri) - Fixed Sidebar -->
-    <div class="w-[280px] bg-white rounded-lg shadow-md p-4 sticky top-6 h-fit">
-      <h2 class="text-lg font-semibold text-[--teal-dark] mb-4 border-b pb-2" style="color: var(--teal-dark);">Filter</h2>
-      <div class="space-y-4">
-        <!-- Lokasi (Read-Only) -->
-        <div>
-          <label class="text-sm font-medium text-[--navy-dark] mb-2" style="color: var(--navy-dark);">Lokasi</label>
-          <div class="p-2 bg-gray-100 rounded-md text-[--teal-dark]" style="color: var(--teal-dark);">
-            {% if request.GET.destination_id and hotel_data %}
-              {% with hotel=hotel_data|first %}
-                {{ hotel.obj.region }}
-              {% endwith %}
-            {% else %}
-              Tidak ada lokasi dipilih
-            {% endif %}
-          </div>
+    <div class="w-full lg:w-[280px] h-[calc(100vh-140px)] sticky top-[120px] overflow-auto scrollbar-thin scrollbar-thumb-[--teal-light] scrollbar-track-gray-100" id="filterSidebar">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Filter Header -->
+        <div class="bg-gradient-to-r from-[--teal-medium] to-[--teal-dark] px-5 py-4">
+          <h2 class="text-lg font-semibold text-white flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filter Pencarian
+          </h2>
         </div>
-        <!-- Star Rating (Checkbox di Bawah dengan Auto-Submit) -->
-        <div>
-          <label class="text-sm font-medium text-[--navy-dark] mb-2" style="color: var(--navy-dark);">Star Rating</label>
-          <div class="space-y-2">
-            {% for rating in '2345' %}
-            <label class="flex items-center gap-2">
-              <input type="checkbox" name="star_rating" value="{{ rating }}" {% if rating in request.GET.star_rating %}checked{% endif %} class="star-filter" style="accent-color: var(--teal-medium);" onchange="this.closest('form').submit()">
-              <span class="text-sm text-[--teal-dark]" style="color: var(--teal-dark);">{{ rating }} ★</span>
-            </label>
-            {% endfor %}
+        
+        <!-- Filter Body -->
+        <div class="p-5 space-y-5">
+          <!-- Lokasi (Read-Only) -->
+          <div class="filter-section bg-[--mint-light] bg-opacity-20">
+            <h3 class="filter-title text-[--teal-dark]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Lokasi Terpilih
+            </h3>
+            <div class="p-3 bg-white rounded-lg text-[--teal-dark] shadow-sm border border-[--teal-light] font-medium">
+              {% if request.GET.destination_id and hotel_data %}
+                {% with hotel=hotel_data|first %}
+                  {{ hotel.obj.region }} - {{ hotel.obj.name }}
+                {% endwith %}
+              {% else %}
+                Tidak ada lokasi dipilih
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Star Rating (Modern Toggle) -->
+          <div class="filter-section">
+            <h3 class="filter-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+              </svg>
+              Peringkat Bintang
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {% for rating in '2345' %}
+              <div class="star-rating-toggle {% if rating in request.GET.star_rating %}active{% endif %}" data-rating="{{ rating }}">
+                <span>{{ rating }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                </svg>
+                <input type="checkbox" name="star_rating" value="{{ rating }}" class="star-filter hidden" {% if rating in request.GET.star_rating %}checked{% endif %} onchange="this.closest('form').submit()">
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <!-- Price Range -->
+          <div class="filter-section">
+            <h3 class="filter-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Rentang Harga
+            </h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-xs text-[--teal-medium]">Minimum</span>
+                <span class="text-xs text-[--teal-medium]">Maximum</span>
+              </div>
+              <div class="relative mt-2">
+                <div class="price-slider">
+                  <div class="price-slider-progress" style="left: 25%; right: 33.3%;"></div>
+                  <div class="price-slider-handle" style="left: 25%"></div>
+                  <div class="price-slider-handle" style="left: 66.7%"></div>
+                </div>
+              </div>
+              <div class="flex justify-between mt-1">
+                <span class="text-xs font-medium text-[--navy-dark] price-range-display">Rp 500.000</span>
+                <span class="text-xs font-medium text-[--navy-dark] price-range-display">Rp 2.500.000</span>
+              </div>
+              
+              <!-- Price Input Fields -->
+              <div class="flex gap-2 mt-3">
+                <div class="flex-1">
+                  <input type="text" placeholder="Min" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[--teal-medium] focus:border-[--teal-medium]" value="500000">
+                </div>
+                <div class="flex-1">
+                  <input type="text" placeholder="Max" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[--teal-medium] focus:border-[--teal-medium]" value="2500000">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Facilities Filter -->
+          <div class="filter-section">
+            <h3 class="filter-title">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              Fasilitas
+            </h3>
+            <div class="space-y-2">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-[--teal-medium] rounded focus:ring-0 cursor-pointer">
+                <span class="ml-2 text-sm text-gray-700">WiFi Gratis</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-[--teal-medium] rounded focus:ring-0 cursor-pointer">
+                <span class="ml-2 text-sm text-gray-700">Sarapan</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-[--teal-medium] rounded focus:ring-0 cursor-pointer">
+                <span class="ml-2 text-sm text-gray-700">Kolam Renang</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-[--teal-medium] rounded focus:ring-0 cursor-pointer">
+                <span class="ml-2 text-sm text-gray-700">Parkir Gratis</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-[--teal-medium] rounded focus:ring-0 cursor-pointer">
+                <span class="ml-2 text-sm text-gray-700">Restoran</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Apply Filter Button -->
+          <button type="button" class="w-full bg-[--teal-medium] text-white py-3 rounded-lg font-medium hover:bg-[--teal-dark] transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+            </svg>
+            Terapkan Filter
+          </button>
+          
+          <!-- Reset Filter Link -->
+          <div class="text-center">
+            <a href="#" class="text-sm text-[--teal-dark] hover:text-[--teal-medium] transition-colors underline">Reset semua filter</a>
           </div>
         </div>
       </div>
     </div>
     <!-- Hotel List Section (Kanan) -->
-    <div class="flex-1">
-      <!-- Jumlah Hotel Ditemukan -->
-      <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-        <div class="flex justify-between items-center">
-          <p class="text-sm font-medium text-[--teal-dark]" style="color: var(--teal-dark);">
-            Ditemukan {{ hotel_data|length }} hotel
-          </p>
-          <div class="text-sm text-[--teal-dark]">
-            <span>Urutkan: </span>
-            <select class="border-none bg-transparent focus:outline-none text-[--teal-medium]" style="color: var(--teal-medium);">
+    <div class="flex-1 h-[calc(100vh-140px)] overflow-auto scrollbar-thin scrollbar-thumb-[--teal-light] scrollbar-track-gray-100" id="hotelListContainer">
+      <!-- Jumlah Hotel & Sorting -->
+      <div class="bg-white rounded-xl p-4 mb-6 shadow-md">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <p class="font-medium text-[--navy-dark]">
+              Ditemukan <span class="text-[--teal-medium] font-semibold">{{ hotel_data|length }}</span> hotel
+            </p>
+          </div>
+          <div class="flex items-center bg-[--mint-light] bg-opacity-20 rounded-full px-4 py-2">
+            <span class="text-sm text-[--navy-dark] mr-2">Urutkan: </span>
+            <select class="bg-transparent border-none focus:outline-none text-[--teal-medium] font-medium cursor-pointer">
               <option>Harga Terendah</option>
               <option>Rating Tertinggi</option>
+              <option>Promo</option>
+              <option>Terbaru</option>
             </select>
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-4">
+      
+      <!-- Hotel List Layout - Horizontal Cards -->
+      <div class="flex flex-col space-y-4">
         {% for h in hotel_data %}
         {% if h.obj.id %}
-        <a href="{% url 'hotel_detail' h.obj.id %}" class="block hover:shadow-lg transition rounded-2xl overflow-hidden">
-          <div class="bg-white shadow rounded-2xl flex flex-col hover:-translate-y-1 transform transition w-full h-[400px]">
-            <div class="relative w-full h-60">
-              {% if h.image %}
-                <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover">
-              {% else %}
-                <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover" alt="No Image">
-              {% endif %}
-              <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1" style="color: var(--navy-dark);">
-                {% with rating=h.obj.average_rating|floatformat:1 %}
-                  <span class="text-sm font-bold text-[--navy-dark]" style="color: var(--navy-dark);">{{ rating }}/5</span>
-                  <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} reviews</span>
-                {% endwith %}
-              </div>
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-              <div class="flex flex-col gap-2 mb-2">
-                <div class="min-h-[3rem]">
-                  <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
-                  <div class="flex items-center">
-                    {% for i in "12345"|slice:":h.obj.star_rating" %}
-                      {% if forloop.counter0 < h.obj.star_rating %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium]" style="color: var(--teal-medium);" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                        </svg>
-                      {% else %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--mint-light]" style="color: var(--mint-light);" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
-                        </svg>
-                      {% endif %}
-                    {% endfor %}
-                  </div>
+        <a href="{% url 'hotel_detail' h.obj.id %}" class="block transition hotel-card">
+          <div class="bg-white shadow-md hover:shadow-xl rounded-xl overflow-hidden transition-all duration-300">
+            <div class="flex flex-col md:flex-row">
+              <!-- Hotel Image -->
+              <div class="relative md:w-[250px] h-[200px] overflow-hidden image-container">
+                {% if h.image %}
+                  <img src="{{ h.image }}" alt="{{ h.obj.name }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                {% else %}
+                  <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt="No Image">
+                {% endif %}
+                
+                <!-- Rating Badge -->
+                <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[--navy-dark] px-3 py-1.5 rounded-lg font-semibold shadow-md flex items-center gap-1">
+                  {% with rating=h.obj.average_rating|floatformat:1 %}
+                    <span class="font-bold text-[--navy-dark]">{{ rating }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                    </svg>
+                    <span class="text-xs text-[--teal-dark] ml-1">({{ h.jumlah_ulasan|intcomma }})</span>
+                  {% endwith %}
+                </div>
+                
+                <!-- Star Rating Tag at Bottom -->
+                <div class="absolute bottom-3 left-3 bg-yellow-400/90 backdrop-blur-sm text-[--navy-dark] px-3 py-1 rounded-lg font-medium text-xs shadow-md flex items-center">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= h.obj.star_rating %}
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[--navy-dark]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .587l3.668 7.568L24 9.75l-6 5.847L19.336 24 12 19.771 4.664 24 6 15.597 0 9.75l8.332-1.595z"/>
+                      </svg>
+                    {% endif %}
+                  {% endfor %}
                 </div>
               </div>
-              <p class="text-sm text-[--teal-dark] truncate" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
-              <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
-                {% if h.harga_termurah %}
-                 Rp {{ h.harga_termurah|intcomma }}
-                {% else %}
-                  Tidak tersedia
-                {% endif %}
-              </p>
+              
+              <!-- Hotel Content -->
+              <div class="flex-1 p-5 flex flex-col justify-between">
+                <div>
+                  <!-- Hotel Name and Region -->
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 class="font-bold text-lg text-[--navy-dark] hover:text-[--teal-medium] transition-colors">{{ h.obj.name }}</h3>
+                      <div class="flex items-center mt-1">
+                        <span class="text-xs text-[--teal-dark]">Hotel</span>
+                      </div>
+                    </div>
+                    <div class="bg-[--teal-medium]/10 text-[--teal-medium] px-3 py-1 rounded-lg text-xs font-medium">
+                      {{ h.obj.region }}
+                    </div>
+                  </div>
+                  
+                  <!-- Location -->
+                  <div class="flex items-center text-sm text-[--teal-dark] mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-[--teal-medium]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{{ h.obj.location }}</span>
+                  </div>
+                  
+                  <!-- Amenities (optional) -->
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    <div class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md flex items-center amenity-badge">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Free Cancellation</span>
+                    </div>
+                    <div class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md flex items-center amenity-badge">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <span>Breakfast</span>
+                    </div>
+                    <div class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md flex items-center amenity-badge">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span>Free WiFi</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Price and Book Button -->
+                <div class="flex justify-between items-center mt-auto">
+                  <div class="flex flex-col">
+                    <span class="text-xs text-gray-500">Mulai dari</span>
+                    <div class="flex items-baseline">
+                      <span class="text-[--teal-medium] font-bold text-xl">
+                        {% if h.harga_termurah %}
+                         Rp {{ h.harga_termurah|intcomma }}
+                        {% else %}
+                          Tidak tersedia
+                        {% endif %}
+                      </span>
+                      <span class="text-xs text-gray-500 ml-1">/malam</span>
+                    </div>
+                  </div>
+                  <button class="bg-[--teal-medium] text-white px-4 py-2 rounded-lg font-medium hover:bg-[--teal-dark] transition-colors shadow-md hover:shadow-lg flex items-center">
+                    <span>Lihat Detail</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </a>
         {% endif %}
         {% empty %}
-        <p class="text-[--teal-dark]" style="color: var(--teal-dark);">Tidak ada hotel yang ditemukan.</p>
+        <div class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-[--teal-light] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-[--navy-dark] mb-2">Tidak ada hotel yang ditemukan</h3>
+          <p class="text-[--teal-dark] text-center max-w-md">Coba ubah filter pencarian atau pilih lokasi lain untuk menemukan hotel yang tersedia.</p>
+        </div>
         {% endfor %}
       </div>
     </div>
@@ -165,7 +557,160 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  // Initialize flatpickr for date range (disabled interaction in search page)
+  // Star rating toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the star rating toggle buttons
+    const starRatingToggles = document.querySelectorAll('.star-rating-toggle');
+    starRatingToggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const checkbox = this.querySelector('input[type="checkbox"]');
+        checkbox.checked = !checkbox.checked;
+        this.classList.toggle('active');
+        checkbox.dispatchEvent(new Event('change'));
+      });
+    });
+    
+    // Simulate price range slider functionality
+    const sliderHandles = document.querySelectorAll('.price-slider-handle');
+    const sliderProgress = document.querySelector('.price-slider-progress');
+    let isDragging = false;
+    let activeHandle = null;
+    let startX, startLeft;
+    
+    sliderHandles.forEach(handle => {
+      handle.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        isDragging = true;
+        activeHandle = this;
+        startX = e.clientX;
+        startLeft = parseFloat(this.style.left);
+        
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', stopDrag);
+      });
+    });
+    
+    function handleDrag(e) {
+      if (!isDragging) return;
+      
+      const slider = document.querySelector('.price-slider');
+      const sliderRect = slider.getBoundingClientRect();
+      const newLeft = startLeft + ((e.clientX - startX) / sliderRect.width * 100);
+      
+      // Restrict movement within slider boundaries (0-100%)
+      let boundedLeft = Math.max(0, Math.min(100, newLeft));
+      
+      // Prevent handles from crossing
+      if (activeHandle === sliderHandles[0]) {
+        boundedLeft = Math.min(boundedLeft, parseFloat(sliderHandles[1].style.left) - 5);
+      } else {
+        boundedLeft = Math.max(boundedLeft, parseFloat(sliderHandles[0].style.left) + 5);
+      }
+      
+      activeHandle.style.left = boundedLeft + '%';
+      
+      // Update the progress bar
+      if (activeHandle === sliderHandles[0]) {
+        sliderProgress.style.left = boundedLeft + '%';
+      } else {
+        sliderProgress.style.right = (100 - boundedLeft) + '%';
+      }
+      
+      // Update price display (just for visual demonstration)
+      updatePriceDisplay();
+    }
+    
+    function stopDrag() {
+      isDragging = false;
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    }
+    
+    function updatePriceDisplay() {
+      const minPos = parseFloat(sliderHandles[0].style.left);
+      const maxPos = parseFloat(sliderHandles[1].style.left);
+      
+      // Map position percentage to price range (500,000 - 2,500,000)
+      const minPrice = Math.round(500000 + (minPos / 100) * 2000000);
+      const maxPrice = Math.round(500000 + (maxPos / 100) * 2000000);
+      
+      // Format with commas for thousands
+      const formattedMinPrice = minPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      const formattedMaxPrice = maxPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      
+      document.querySelectorAll('.price-range-display')[0].textContent = 'Rp ' + formattedMinPrice;
+      document.querySelectorAll('.price-range-display')[1].textContent = 'Rp ' + formattedMaxPrice;
+      
+      // Update input fields too
+      document.querySelectorAll('input[placeholder="Min"]')[0].value = minPrice;
+      document.querySelectorAll('input[placeholder="Max"]')[0].value = maxPrice;
+    }
+    
+    // Make amenity badges clickable
+    const amenityBadges = document.querySelectorAll('.amenity-badge');
+    amenityBadges.forEach(badge => {
+      badge.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+      
+      badge.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+    
+    // Apply filter button effect
+    const filterButton = document.querySelector('button[type="button"]');
+    filterButton.addEventListener('click', function() {
+      this.classList.add('scale-95');
+      setTimeout(() => {
+        this.classList.remove('scale-95');
+      }, 100);
+      
+      // Here you would typically submit the form or apply filters
+      // For demo purposes, show a notification
+      showNotification('Filter diterapkan!');
+    });
+    
+    // Show notification helper
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 bg-[--teal-medium] text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fadeIn';
+      notification.innerHTML = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('animate-fadeOut');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 500);
+      }, 2000);
+    }
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(10px); }
+      }
+      
+      .animate-fadeIn {
+        animation: fadeIn 0.3s ease forwards;
+      }
+      
+      .animate-fadeOut {
+        animation: fadeOut 0.3s ease forwards;
+      }
+    `;
+    document.head.appendChild(style);
+  });
+
+  // Initialize flatpickr for date range
   flatpickr("#prevDateRange", {
     mode: "range",
     dateFormat: "Y-m-d",
@@ -202,6 +747,55 @@
     const trigger = document.querySelector('[onclick="toggleDestinationDropdown()"]');
     if (dropdown && !dropdown.contains(e.target) && !trigger.contains(e.target)) {
       dropdown.classList.add('hidden');
+    }
+  });
+
+  // Sticky search enhancement with improved shadow effect
+  window.addEventListener('scroll', function() {
+    const stickySearch = document.getElementById('stickySearch');
+    if (stickySearch) {
+      if (window.scrollY > 10) {
+        stickySearch.classList.add('shadow-lg');
+        stickySearch.style.backgroundColor = '#ffffff';
+        stickySearch.style.paddingBottom = '1rem';
+      } else {
+        stickySearch.classList.remove('shadow-lg');
+        stickySearch.style.backgroundColor = '#ffffff';
+        stickySearch.style.paddingBottom = '1rem';
+      }
+    }
+  });
+  
+  // Independent scrolling behavior for filter and hotel list sections
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterSidebar = document.getElementById('filterSidebar');
+    const hotelListContainer = document.getElementById('hotelListContainer');
+    const mainContainer = document.querySelector('body');
+    
+    // Prevent body scrolling when mouse is over filter sidebar
+    if (filterSidebar) {
+      filterSidebar.addEventListener('mouseenter', function() {
+        mainContainer.style.overflow = 'hidden';
+        filterSidebar.style.overflowY = 'auto';
+      });
+      
+      filterSidebar.addEventListener('mouseleave', function() {
+        mainContainer.style.overflow = '';
+        filterSidebar.style.overflowY = 'auto';
+      });
+    }
+    
+    // Prevent body scrolling when mouse is over hotel list
+    if (hotelListContainer) {
+      hotelListContainer.addEventListener('mouseenter', function() {
+        mainContainer.style.overflow = 'hidden';
+        hotelListContainer.style.overflowY = 'auto';
+      });
+      
+      hotelListContainer.addEventListener('mouseleave', function() {
+        mainContainer.style.overflow = '';
+        hotelListContainer.style.overflowY = 'auto';
+      });
     }
   });
 

@@ -6,8 +6,9 @@ urlpatterns = [
     path('hotels/', views.HotelListView.as_view(), name='hotel_list'),
     path('hotel/search/', views.HotelSearchView.as_view(), name='hotel_search'),
     path('hotel/<int:hotel_id>/', views.HotelDetailView.as_view(), name='hotel_detail'),
-    path('reservation/', views.ReservationView.as_view(), name='reservation'),
+    # Pastikan URL dengan parameter dinamis (hotel_id) didefinisikan sebelum URL statis
     path('reservation/<int:hotel_id>/', views.ReservationView.as_view(), name='reservation_form'),
+    path('reservation/', views.ReservationView.as_view(), name='reservation'),
     path('reservation/<int:reservation_id>/payment/', views.PaymentView.as_view(), name='payment'),
     path('reservation/<int:reservation_id>/detail/', views.ReservationDetailView.as_view(), name='reservation_detail'),
     path('reservation/<int:reservation_id>/cancel/', views.CancelReservationView.as_view(), name='cancel_reservation'),

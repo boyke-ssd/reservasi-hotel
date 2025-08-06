@@ -25,71 +25,228 @@
     transform: translateY(0);
     opacity: 1;
   }
+  /* Search form enhancements */
+  .search-container {
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  .search-form {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Region dropdown styling */
+  .region-dropdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 8px;
+  }
+  
+  .region-item {
+    padding: 12px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .region-item:hover {
+    background-color: var(--mint-light);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .search-input {
+    border-radius: 0.5rem;
+    border-width: 1px;
+    transition: all 0.3s ease;
+  }
+  .search-button {
+    border-radius: 0.5rem;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .sticky-search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, var(--teal-medium) 0%, var(--navy-dark) 100%);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 2rem;
+    transform: translateY(0);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  .sticky-search .search-form {
+    max-width: 1152px; /* 6xl in Tailwind */
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0.5rem;
+  }
+  .sticky-search-padding {
+    padding-top: 170px; /* Adjust based on your search form height */
+  }
+  .star-filter.selected {
+    background-color: var(--teal-medium);
+    color: white;
+    border-color: var(--teal-medium);
+  }
+  .section-title {
+    position: relative;
+    padding-left: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-title:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
+    height: 80%;
+    width: 4px;
+    background-color: var(--teal-medium);
+    border-radius: 2px;
+  }
+  /* Gradient background for header */
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--teal-medium) 0%, var(--navy-dark) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .gradient-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to right, rgba(255,255,255,0.1), transparent);
+    pointer-events: none;
+  }
+  /* Region dropdown styling - Additional styles */
+  @media (min-width: 640px) {
+    .region-dropdown-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 768px) {
+    .region-dropdown-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
 </style>
-<div class="container mx-auto px-4 max-w-6xl py-6">
-  <div class="relative z-10 flex justify-center items-center">
-    <div class="container mx-auto px-4 max-w-6xl">
-      <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="bg-white rounded-lg shadow-xl p-6">
-        <div class="flex flex-col lg:flex-row gap-4 items-stretch">
-          <!-- Destination (Region) -->
-          <div class="flex-1 min-w-[200px] relative">
-            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 cursor-pointer hover:shadow-md transition-shadow border-2 border-[--teal-medium] group" onclick="toggleDestinationDropdown()" style="border-color: var(--teal-medium);">
-              <div class="flex flex-col justify-center h-full">
-                <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Destinasi</span>
-                <span class="text-sm font-medium text-[--teal-dark]" id="destinationValue">Pilih Hotel</span>
-              </div>
-            </div>
-            <div id="destinationDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border hidden z-50" style="border-color: var(--teal-medium);">
-              <div class="border-t max-h-48 overflow-y-auto" style="border-color: var(--teal-medium);">
-                {% for hotel in all_hotels %}
-                <div class="p-3 hover:bg-[--mint-light] cursor-pointer" style="hover:bg-color: var(--mint-light);" onclick="selectDestination('{{ hotel.name }}', '{{ hotel.id }}')">
-                  <div class="flex items-center gap-2">
-                    <span class="font-medium text-[--teal-dark]" style="color: var(--teal-dark);">{{ hotel.region }}</span>
-                  </div>
-                  <span class="text-xs text-[--teal-medium]" style="color: var(--teal-medium);">{{ hotel.name }}</span>
+
+<!-- Main Container -->
+<div class="container mx-auto px-4 max-w-6xl py-8">
+  <!-- Header Section with Title -->
+  <header class="gradient-bg text-white py-10 px-6 shadow-lg rounded-lg mb-8">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold text-white">Temukan Hotel Impian Anda</h1>
+      <p class="text-white opacity-90 mt-2">Pilih dari berbagai hotel terbaik untuk liburan atau perjalanan bisnis Anda</p>
+    </div>
+  </header>
+
+  <!-- Pencarian -->
+  <div id="searchContainer" class="search-container p-4 mb-8">
+    <form method="GET" action="{% url 'hotel_search' %}" aria-label="Hotel search form" class="search-form bg-white p-4">
+      <!-- Main Search Controls -->
+      <div class="flex flex-col lg:flex-row gap-4 items-center">
+        <!-- Destination (Region) -->
+        <div class="flex-1 min-w-[200px] relative">
+          <label for="regionDropdown" class="block text-sm font-medium text-[--navy-dark] mb-1">Pilih Region</label>
+          <div class="bg-white p-2 h-12 cursor-pointer hover:shadow-md transition-shadow border border-[--teal-light] search-input flex items-center" onclick="toggleRegionDropdown()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-sm font-medium text-[--navy-dark]" id="regionValue">Pilih Region</span>
+            <svg class="w-4 h-4 ml-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+          <div id="regionDropdown" class="absolute w-full mt-1 bg-white rounded-md shadow-lg border border-[--teal-light] hidden z-50">
+            <div class="max-h-80 overflow-y-auto p-4">
+              <div class="region-dropdown-grid">
+                <div class="region-item w-full" onclick="selectRegion('Semua', '')">
+                  <span class="font-medium text-[--navy-dark]">Semua</span>
+                </div>
+                {% for region in regions %}
+                <div class="region-item w-full" onclick="selectRegion('{{ region.name }}', '{{ region.id }}')">
+                  <span class="font-medium text-[--navy-dark]">{{ region.name }}</span>
                 </div>
                 {% endfor %}
               </div>
             </div>
-            <input type="hidden" name="destination_id" id="selectedDestination">
           </div>
-          <!-- Check-in (Range) -->
-          <div class="flex-1 min-w-[280px] relative">
-            <div class="bg-white backdrop-blur-md rounded-lg p-3 h-14 hover:shadow-md transition-shadow border-2 border-[--teal-medium] group">
-              <div class="flex flex-col justify-center h-full">
-                <span class="text-xs font-semibold text-[--teal-medium] uppercase tracking-wide group-hover:text-[--teal-dark]" style="color: var(--teal-medium);">Check-in</span>
-                <input type="text" name="date_range" id="dateRange" class="text-sm font-medium text-[--teal-dark] w-full focus:outline-none" placeholder="Pilih rentang tanggal" readonly>
-              </div>
-            </div>
+          <input type="hidden" name="region_id" id="selectedRegion">
+        </div>
+        
+        <!-- Check-in (Range) -->
+        <div class="flex-1 min-w-[280px] relative">
+          <label for="dateRange" class="block text-sm font-medium text-[--navy-dark] mb-1">Tanggal Check-in/Check-out</label>
+          <div class="bg-white p-2 h-12 hover:shadow-md transition-shadow border border-[--teal-light] search-input flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[--teal-medium] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <input type="text" name="date_range" id="dateRange" class="text-sm font-medium text-[--navy-dark] w-full focus:outline-none" placeholder="Pilih rentang tanggal" readonly>
           </div>
-          <!-- Tombol Cari -->
-          <button type="submit" class="bg-[--teal-medium] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[--teal-dark] transition-all duration-300 flex items-center gap-2 min-w-[120px] justify-center h-14 hover:shadow-lg hover:-translate-y-1" style="background-color: var(--teal-medium);">
-            <span>Cari</span>
+        </div>
+        
+        <!-- Tombol Cari -->
+        <div class="mt-auto">
+          <button type="submit" class="bg-[--teal-medium] text-white font-semibold rounded-md px-4 py-3 hover:bg-[--teal-dark] transition-all duration-300 flex items-center justify-center hover:shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>Cari Hotel</span>
           </button>
         </div>
-        <!-- Filter Rating Bintang -->
-        <div class="mt-4 flex items-center gap-3 ml-0 lg:ml-0">
-          <span class="text-sm font-medium text-[--navy-dark]" style="color: var(--navy-dark);">Rating Bintang:</span>
-          <div class="flex gap-2">
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="2" style="border-color: var(--teal-medium);">
-              2 <span class="text-yellow-400">★</span>
-            </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="3" style="border-color: var(--teal-medium);">
-              3 <span class="text-yellow-400">★</span>
-            </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="4" style="border-color: var(--teal-medium);">
-              4 <span class="text-yellow-400">★</span>
-            </button>
-            <button type="button" class="px-4 py-1.5 rounded-full border text-sm hover:bg-[--teal-medium] hover:text-white hover:border-[--teal-medium] transition-all duration-300 star-filter hover:shadow hover:scale-105" data-rating="5" style="border-color: var(--teal-medium);">
-              5 <span class="text-yellow-400">★</span>
-            </button>
-          </div>
+      </div>
+      
+      <!-- Filter Rating Bintang -->
+      <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+        <span class="text-sm font-medium text-[--navy-dark] whitespace-nowrap">Filter Rating:</span>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="2">
+            2 <span class="text-yellow-400">★</span>
+          </button>
+          <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="3">
+            3 <span class="text-yellow-400">★</span>
+          </button>
+          <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="4">
+            4 <span class="text-yellow-400">★</span>
+          </button>
+          <button type="button" class="px-4 py-1.5 rounded-full border border-[--teal-light] text-sm hover:bg-[--teal-medium] hover:text-white transition-all duration-300 star-filter hover:shadow" data-rating="5">
+            5 <span class="text-yellow-400">★</span>
+          </button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
+  <!-- Spacer div for when search becomes sticky -->
+  <div id="searchSpacer" class="hidden"></div>
+
+  <!-- Hotel Results Section -->
+  <div class="mb-6">
+    <h2 class="section-title text-2xl font-bold text-[--navy-dark]">Hotel, NginepYuk!</h2>
+  </div>
+
+  <!-- Hotel Grid with Improved Spacing -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {% for h in hotel_data %}
     {% if h.obj.id %}
     <a href="{% url 'hotel_detail' h.obj.id %}" class="block rounded-2xl overflow-hidden group">
@@ -100,10 +257,10 @@
           {% else %}
             <img src="{% static 'images/no-image.png' %}" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="No Image">
           {% endif %}
-          <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1" style="color: var(--navy-dark);">
+          <div class="absolute top-2 left-2 bg-white text-[--navy-dark] text-xs px-2 py-1 rounded-md font-semibold shadow-md flex items-center gap-1">
             {% with rating=h.obj.average_rating|floatformat:1 %}
-              <span class="text-sm font-bold text-[--navy-dark]" style="color: var(--navy-dark);">{{ rating }}/5</span>
-              <span class="text-xs text-[--teal-dark] ml-1" style="color: var(--teal-dark);">{{ h.jumlah_ulasan|intcomma }} ulasan</span>
+              <span class="text-sm font-bold text-[--navy-dark]">{{ rating }}/5</span>
+              <span class="text-xs text-[--teal-dark] ml-1">{{ h.jumlah_ulasan|intcomma }} ulasan</span>
             {% endwith %}
           </div>
           
@@ -115,7 +272,7 @@
         <div class="p-4 flex flex-col flex-grow">
           <div class="flex flex-col gap-2 mb-2">
             <div class="min-h-[3rem]">
-              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2" style="color: var(--navy-dark);">{{ h.obj.name }}</h3>
+              <h3 class="font-semibold text-base text-[--navy-dark] line-clamp-2">{{ h.obj.name }}</h3>
               <div class="flex items-center">
                 {% for i in "12345"|slice:":h.obj.star_rating" %}
                   {% if forloop.counter0 < h.obj.star_rating %}
@@ -131,9 +288,9 @@
               </div>
             </div>
           </div>
-          <p class="text-sm text-[--teal-dark] truncate" style="color: var(--teal-dark);">{{ h.obj.location }}</p>
+          <p class="text-sm text-[--teal-dark] truncate">{{ h.obj.location }}</p>
           <div class="mt-auto">
-            <p class="text-right text-[--teal-medium] font-bold text-sm" style="color: var(--teal-medium);">
+            <p class="text-right text-[--teal-medium] font-bold text-sm">
               {% if h.harga_termurah %}
                 <span class="text-xs text-gray-500 line-through">Rp {{ h.harga_termurah|add:20000|intcomma }}</span>
                 <span class="block">Rp {{ h.harga_termurah|intcomma }}</span>
@@ -147,25 +304,79 @@
     </a>
     {% endif %}
     {% empty %}
-    <p class="text-[--teal-dark]" style="color: var(--teal-dark);">Tidak ada hotel yang ditemukan.</p>
+    <div class="col-span-full py-16 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+      <p class="text-[--navy-dark] text-xl font-semibold mb-2">Tidak ada hotel yang ditemukan</p>
+      <p class="text-[--teal-dark] mb-6">Coba ubah filter atau destinasi untuk hasil yang berbeda</p>
+      <button onclick="resetFilters()" class="bg-[--teal-medium] text-white px-6 py-2 rounded-lg hover:bg-[--teal-dark] transition-all">Reset Filter</button>
+    </div>
     {% endfor %}
   </div>
+  
+  <!-- Results Count -->
+  <div class="mt-6 text-right text-sm text-[--navy-dark]">
+    <span id="resultsCount">{{ hotel_data|length }} hotel ditemukan</span>
+  </div>
 </div>
+
+<!-- External Libraries -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-  function selectDestination(hotelName, hotelId) {
-    document.getElementById('destinationValue').textContent = hotelName;
-    document.getElementById('selectedDestination').value = hotelId;
-  }
 
-  function toggleDestinationDropdown() {
-    const dropdown = document.getElementById('destinationDropdown');
+<!-- Scripts -->
+<script>
+  // Region dropdown functions
+  function toggleRegionDropdown() {
+    const dropdown = document.getElementById('regionDropdown');
     dropdown.classList.toggle('hidden');
   }
 
-  // Inisialisasi pemilih tanggal
+  function selectRegion(name, id) {
+    document.getElementById('regionValue').textContent = name;
+    document.getElementById('selectedRegion').value = id;
+    document.getElementById('regionDropdown').classList.add('hidden');
+  }
+
+  function resetFilters() {
+    document.getElementById('regionValue').textContent = 'Pilih Region';
+    document.getElementById('selectedRegion').value = '';
+    document.getElementById('dateRange').value = '';
+    
+    // Unselect all star filters
+    document.querySelectorAll('.star-filter').forEach(btn => {
+      btn.classList.remove('selected', 'bg-[--teal-medium]', 'text-white');
+    });
+    
+    // Remove hidden inputs
+    document.querySelectorAll('input[name="star_rating"]').forEach(input => input.remove());
+    
+    // Submit the form
+    document.querySelector('form').submit();
+  }
+
+  function resetFilters() {
+    document.getElementById('regionValue').textContent = 'Pilih Region';
+    document.getElementById('selectedRegion').value = '';
+    document.getElementById('destinationValue').textContent = 'Pilih Hotel';
+    document.getElementById('selectedDestination').value = '';
+    document.getElementById('dateRange').value = '';
+    
+    // Unselect all star filters
+    document.querySelectorAll('.star-filter').forEach(btn => {
+      btn.classList.remove('selected', 'bg-[--teal-medium]', 'text-white');
+    });
+    
+    // Remove hidden inputs
+    document.querySelectorAll('input[name="star_rating"]').forEach(input => input.remove());
+    
+    // Submit the form
+    document.querySelector('form').submit();
+  }
+
+  // Initialize date picker
   flatpickr("#dateRange", {
     mode: "range",
     dateFormat: "Y-m-d",
@@ -195,21 +406,31 @@
     }
   });
 
-  // Pemilihan rating bintang (tanpa submit otomatis)
+  // Star rating filter with visual feedback
   const starFilters = document.querySelectorAll('.star-filter');
   const selectedRatings = new Set();
+  
+  // Check URL parameters to set initial state
+  const urlParams = new URLSearchParams(window.location.search);
+  const starRatings = urlParams.getAll('star_rating');
+  
   starFilters.forEach(button => {
+    const rating = button.getAttribute('data-rating');
+    
+    // Set initial state based on URL params
+    if (starRatings.includes(rating)) {
+      button.classList.add('selected', 'bg-[--teal-medium]', 'text-white');
+      selectedRatings.add(rating);
+    }
+    
     button.addEventListener('click', function() {
-      const rating = this.getAttribute('data-rating');
-      const isSelected = this.classList.contains('bg-[--teal-medium]');
+      const isSelected = this.classList.contains('selected');
 
       if (isSelected) {
-        this.classList.remove('bg-[--teal-medium]', 'text-white', 'border-[--teal-medium]');
-        this.classList.add('border-gray-300', 'text-gray-700');
+        this.classList.remove('selected', 'bg-[--teal-medium]', 'text-white');
         selectedRatings.delete(rating);
       } else {
-        this.classList.add('bg-[--teal-medium]', 'text-white', 'border-[--teal-medium]');
-        this.classList.remove('border-gray-300', 'text-gray-700');
+        this.classList.add('selected', 'bg-[--teal-medium]', 'text-white');
         selectedRatings.add(rating);
       }
 
@@ -226,13 +447,102 @@
     });
   });
 
+  // Handle sticky search form
+  const searchContainer = document.getElementById('searchContainer');
+  const searchSpacer = document.getElementById('searchSpacer');
+  let searchContainerHeight = searchContainer.offsetHeight;
+  let searchContainerTop = searchContainer.offsetTop;
+  let ticking = false;
+
+  function handleScroll() {
+    const scrollY = window.scrollY;
+    
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        if (scrollY > searchContainerTop) {
+          // Make search sticky
+          searchContainer.classList.add('sticky-search');
+          searchSpacer.classList.remove('hidden');
+          searchSpacer.style.height = `${searchContainerHeight}px`;
+        } else {
+          // Remove sticky
+          searchContainer.classList.remove('sticky-search');
+          searchSpacer.classList.add('hidden');
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  // Recalculate dimensions on window resize
+  function updateDimensions() {
+    searchContainerHeight = searchContainer.offsetHeight;
+    // Only update top position when not sticky
+    if (!searchContainer.classList.contains('sticky-search')) {
+      searchContainerTop = searchContainer.offsetTop;
+    }
+  }
+
+  // Initialize
+  updateDimensions();
+  window.addEventListener('scroll', handleScroll);
+  window.addEventListener('resize', updateDimensions);
+
   // Close dropdown when clicking outside
   document.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('destinationDropdown');
-    const trigger = document.querySelector('[onclick="toggleDestinationDropdown()"]');
-    if (dropdown && !dropdown.contains(e.target) && !trigger.contains(e.target)) {
-      dropdown.classList.add('hidden');
+    // Close region dropdown
+    const regionDropdown = document.getElementById('regionDropdown');
+    const regionTrigger = document.querySelector('[onclick="toggleRegionDropdown()"]');
+    
+    if (regionDropdown && !regionDropdown.contains(e.target) && (!regionTrigger || !regionTrigger.contains(e.target))) {
+      regionDropdown.classList.add('hidden');
     }
   });
+</script>
+<script>
+// Function to handle dropdown positioning
+function positionDropdown() {
+  const dropdown = document.getElementById('regionDropdown');
+  if (dropdown && !dropdown.classList.contains('hidden')) {
+    const button = document.querySelector('[onclick="toggleRegionDropdown()"]');
+    const buttonRect = button.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    
+    // Check if there's enough space below
+    const spaceBelow = windowHeight - buttonRect.bottom;
+    const dropdownHeight = dropdown.offsetHeight;
+    
+    if (spaceBelow < dropdownHeight && buttonRect.top > dropdownHeight) {
+      // Position above if not enough space below
+      dropdown.style.bottom = (buttonRect.height + 5) + 'px';
+      dropdown.style.top = 'auto';
+    } else {
+      // Position below
+      dropdown.style.top = '100%';
+      dropdown.style.bottom = 'auto';
+    }
+  }
+}
+
+// Add event listener to run when dropdown is toggled
+document.addEventListener('DOMContentLoaded', function() {
+  const originalToggleFunction = window.toggleRegionDropdown;
+  
+  window.toggleRegionDropdown = function() {
+    if (originalToggleFunction) {
+      originalToggleFunction();
+    } else {
+      const dropdown = document.getElementById('regionDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+    
+    // Position the dropdown after toggling
+    setTimeout(positionDropdown, 10);
+  };
+  
+  // Reposition on window resize
+  window.addEventListener('resize', positionDropdown);
+});
 </script>
 {% endblock %}

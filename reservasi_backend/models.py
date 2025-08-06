@@ -71,6 +71,12 @@ class Hotel(models.Model):
             ('Lampung', 'Lampung'),
             ('Jakarta', 'Jakarta'),
             ('Surabaya', 'Surabaya'),
+            ('Bandung', 'Bandung'),
+            ('Sumatra Barat', 'Sumatra Barat'),
+            ('Balikpapan', 'Bali'),
+            ('Jawa Barat', 'Jawa Barat'),
+            ('Jawa Timur', 'Jawa Timur'),
+            ('Balikpapan', 'Balikpapan'),
         ],
         verbose_name=_("Region")
     )

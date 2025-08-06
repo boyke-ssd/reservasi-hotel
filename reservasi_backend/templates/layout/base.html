@@ -5,41 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{% block title %}Hotel Djangoo{% endblock %}</title>
-    
-    <!-- Preload important fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+    <title>{% block title %}NginepYuk | PBO{% endblock %}</title>
     
     <!-- DNS prefetch for external resources -->
     <link rel="dns-prefetch" href="//cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//kit.fontawesome.com">
-    
-    <!-- Critical CSS inline for faster loading -->
-    <style>
-        /* Critical CSS Reset */
-        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-        html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-        body{font-family:'Poppins',Arial,sans-serif;margin:0;padding:0;line-height:1.6;background-color:#f7fafc;color:#2d3748}
-        img{border-style:none;max-width:100%;height:auto;vertical-align:middle}
-        
-        /* Critical variables */
-        :root{--navy-dark:#071952;--teal-dark:#0B666A;--teal-medium:#35A29F;--mint-light:#97FEED}
-        
-        /* Critical utilities */
-        .font-poppins{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}
-        .bg-gray-100{background-color:#f7fafc}
-        .text-mint-light{color:var(--mint-light)}
-    </style>
-    
     <!-- External stylesheets -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
     <!-- Tailwind CSS -->
     <script>
-        // Tailwind config for custom colors
+        // Tailwind config custom warna
         tailwind.config = {
             theme: {
                 extend: {
@@ -57,28 +36,15 @@
         }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- Alpine.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js" defer></script>
-    
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    
     <!-- Favicon -->
     <link rel="icon" href="{% static 'images/icon.png' %}" sizes="128x128" type="image/x-icon">
     <link rel="apple-touch-icon" href="{% static 'images/icon.png' %}">
 </head>
-<body class="font-poppins bg-gray-100 text-mint-light">
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-navy-dark text-mint-light p-2 z-50">
-        Skip to main content
-    </a>
-    
-    <!-- Loading indicator -->
-    <div id="loading-indicator" class="fixed inset-0 bg-navy-dark bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-mint-light"></div>
-    </div>
-    
+<body class="font-poppins bg-gray-100">
     <!-- Navbar -->
     {% if '/login/' not in request.path and '/register/' not in request.path %}
         {% include 'layout/navbar.html' %}
@@ -101,164 +67,7 @@
         </svg>
     </button>
     
-    <!-- Common JavaScript -->
-    <script>
-        // Cross-browser compatibility functions
-        const BrowserCompatibility = {
-            // Detect browser
-            getBrowser: function() {
-                const userAgent = navigator.userAgent;
-                if (userAgent.includes('Firefox')) return 'firefox';
-                if (userAgent.includes('Edge')) return 'edge';
-                if (userAgent.includes('Chrome')) return 'chrome';
-                if (userAgent.includes('Safari')) return 'safari';
-                if (userAgent.includes('MSIE') || userAgent.includes('Trident')) return 'ie';
-                return 'unknown';
-            },
-            
-            // Add browser-specific classes
-            addBrowserClass: function() {
-                const browser = this.getBrowser();
-                document.documentElement.classList.add('browser-' + browser);
-            },
-            
-            // Fix common issues
-            fixCommonIssues: function() {
-                const browser = this.getBrowser();
-                
-                // Fix for Internet Explorer
-                if (browser === 'ie') {
-                    // Add IE-specific fixes
-                    const ieStyles = document.createElement('style');
-                    ieStyles.textContent = `
-                        .glass { background-color: rgba(28, 103, 88, 0.5) !important; }
-                        .gradient-bg { background: #071952 !important; }
-                        .backdrop-blur { background-color: rgba(0, 0, 0, 0.3) !important; }
-                    `;
-                    document.head.appendChild(ieStyles);
-                }
-                
-                // Fix for Safari
-                if (browser === 'safari') {
-                    const safariStyles = document.createElement('style');
-                    safariStyles.textContent = `
-                        .glass { -webkit-backdrop-filter: blur(10px); }
-                        input:focus { outline: 2px solid var(--mint-light); }
-                    `;
-                    document.head.appendChild(safariStyles);
-                }
-                
-                // Fix for Firefox
-                if (browser === 'firefox') {
-                    const firefoxStyles = document.createElement('style');
-                    firefoxStyles.textContent = `
-                        .newsletter-input:focus { outline: 2px solid var(--mint-light); }
-                        .search-bar:focus { outline: 2px solid var(--teal-medium); }
-                    `;
-                    document.head.appendChild(firefoxStyles);
-                }
-            },
-            
-            // Initialize
-            init: function() {
-                this.addBrowserClass();
-                this.fixCommonIssues();
-            }
-        };
-        
-        // Loading indicator
-        const LoadingIndicator = {
-            show: function() {
-                document.getElementById('loading-indicator').classList.remove('hidden');
-            },
-            
-            hide: function() {
-                document.getElementById('loading-indicator').classList.add('hidden');
-            }
-        };
-        
-        // Back to top functionality
-        const BackToTop = {
-            button: null,
-            
-            init: function() {
-                this.button = document.getElementById('back-to-top');
-                if (!this.button) return;
-                
-                // Show/hide button based on scroll position
-                window.addEventListener('scroll', () => {
-                    if (window.pageYOffset > 300) {
-                        this.button.classList.remove('opacity-0', 'pointer-events-none');
-                        this.button.classList.add('opacity-100');
-                    } else {
-                        this.button.classList.add('opacity-0', 'pointer-events-none');
-                        this.button.classList.remove('opacity-100');
-                    }
-                });
-                
-                // Smooth scroll to top
-                this.button.addEventListener('click', () => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-        };
-        
-        // Form validation helpers
-        const FormHelpers = {
-            validateEmail: function(email) {
-                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return re.test(email);
-            },
-            
-            validatePhone: function(phone) {
-                const re = /^[\+]?[0-9\s\-\(\)]{10,}$/;
-                return re.test(phone);
-            },
-            
-            showError: function(element, message) {
-                const errorElement = element.parentNode.querySelector('.error-message');
-                if (errorElement) {
-                    errorElement.textContent = message;
-                    errorElement.classList.remove('hidden');
-                }
-                element.classList.add('border-red-500');
-            },
-            
-            hideError: function(element) {
-                const errorElement = element.parentNode.querySelector('.error-message');
-                if (errorElement) {
-                    errorElement.classList.add('hidden');
-                }
-                element.classList.remove('border-red-500');
-            }
-        };
-        
-        // Performance optimization
-        const PerformanceOptimizer = {
-            // Lazy load images
-            lazyLoadImages: function() {
-                if ('IntersectionObserver' in window) {
-                    const imageObserver = new IntersectionObserver((entries, observer) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const img = entry.target;
-                                img.src = img.dataset.src;
-                                img.classList.remove('lazy');
-                                observer.unobserve(img);
-                            }
-                        });
-                    });
-                    
-                    document.querySelectorAll('img[data-src]').forEach(img => {
-                        imageObserver.observe(img);
-                    });
-                }
-            },
-            
-            // Preload critical resources
-            preloadCriticalResources: function() {
-                const criticalResources = [
-                    '{% static "images/logo.png"}'
+    <!--  JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
